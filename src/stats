@@ -1,0 +1,10 @@
+clear
+
+tree ./ -P *.java
+
+linesOfCode=$(( find . -name '*.java' -print0 | xargs -0 cat ) | wc -l)
+
+echo ""
+echo "Lines of code: ${linesOfCode}"
+
+read

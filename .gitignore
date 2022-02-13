@@ -1,0 +1,4 @@
+api_docs/
+docs/
+test_api_src/
+*.class

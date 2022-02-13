@@ -1,0 +1,6 @@
+./clr
+
+main_class_dir="com/cppscrolls/www"
+
+javac -cp lib/*:. ${main_class_dir}/Main.java
+java -cp lib/*:. ${main_class_dir}/Main

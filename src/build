@@ -1,0 +1,1 @@
+jar -cfe ../build/cpplord__server.jar ru.cpplord.www.Main .
