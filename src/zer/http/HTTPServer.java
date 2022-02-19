@@ -12,6 +12,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import constants.Server;
+
 
 
 class SocketProcessor implements Runnable
@@ -62,7 +64,7 @@ class SocketProcessor implements Runnable
 					HTTPRoute ann = clazz.getAnnotation(HTTPRoute.class);
 					if
 					(
-						req.get("Path").matches(ann.pattern()) &&
+						req.get("Path").matches("^" + Server.API_PREFIX + ann.pattern() + "$") &&
 						ann.type().toLowerCase().equals(req.get("Type").toLowerCase()) &&
 						HTTPTool.matchExtensions(ann.extensions(), req.get("Path"))
 					)
