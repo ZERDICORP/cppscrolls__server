@@ -11,10 +11,11 @@ import constants.Server;
 
 import middlewares.HTTPMiddleware_Auth;
 
-import handlers.HTTPHandler_SignUp;
-import handlers.HTTPHandler_Confirm;
-import handlers.HTTPHandler_SignIn;
-import handlers.HTTPHandler_Rating;
+import handlers.Handler_SignUp;
+import handlers.Handler_Confirm;
+import handlers.Handler_SignIn;
+import handlers.Handler_Rating;
+import handlers.Handler_GetUser;
 
 
 
@@ -27,9 +28,8 @@ public class Main
 
 
 
-    SQLConfig.setDatabase(Server.DATABASE_NAME);
-    SQLConfig.setPassword(Server.DATABASE_PASSWORD);
-    SQLConfig.connect();
+		SQLConfig.auth("root", Server.DATABASE_PASSWORD);
+    SQLConfig.connect("org.mariadb.jdbc.Driver", "jdbc:mariadb://localhost:3306/" + Server.DATABASE_NAME + "?autoReconnect=true");
 
 
 
@@ -39,10 +39,11 @@ public class Main
 
     server.addMiddleware(new HTTPMiddleware_Auth());
 
-    server.addHandler(new HTTPHandler_SignUp());
-    server.addHandler(new HTTPHandler_Confirm());
-    server.addHandler(new HTTPHandler_SignIn());
-    server.addHandler(new HTTPHandler_Rating());
+    server.addHandler(new Handler_SignUp());
+    server.addHandler(new Handler_Confirm());
+    server.addHandler(new Handler_SignIn());
+    server.addHandler(new Handler_Rating());
+		server.addHandler(new Handler_GetUser());
 
     System.out.println("Server started listening on port " + HTTPConfig.getPort() + "..");
   
