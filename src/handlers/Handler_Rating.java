@@ -13,16 +13,15 @@ import zer.http.HTTPResponse;
 import zer.sql.SQLInjector;
 import zer.file.FType;
 
-import constants.Database;
 import constants.Status;
 import constants.Field;
 import constants.Side;
 
-import actions.SQLAction_GetBestUsers;
-import actions.SQLAction_GetSides;
+import actions.Action_GetBestUsers;
+import actions.Action_GetSides;
 
-import models.SQLModel_User;
-import models.SQLModel_Side;
+import models.Model_User;
+import models.Model_Side;
 
 
 
@@ -32,7 +31,7 @@ import models.SQLModel_Side;
   type = "GET",
   withAuthToken = true
 )
-public class HTTPHandler_Rating extends HTTPHandler
+public class Handler_Rating extends HTTPHandler
 {
   @Override
   public void handle(HTTPRequest req, HTTPResponse res)
@@ -59,7 +58,7 @@ public class HTTPHandler_Rating extends HTTPHandler
      * is the bright side (1).
      */
 
-    ArrayList<SQLModel_Side> sides = SQLInjector.<SQLModel_Side>inject(SQLModel_Side.class, new SQLAction_GetSides());
+    ArrayList<Model_Side> sides = SQLInjector.<Model_Side>inject(Model_Side.class, new Action_GetSides());
 
     JSONObject darkSide = new JSONObject(sides.get(Side.DARK.ordinal()), new String[] { Field.SCORE });
     JSONObject brightSide = new JSONObject(sides.get(Side.BRIGHT.ordinal()), new String[] { Field.SCORE });
@@ -74,15 +73,15 @@ public class HTTPHandler_Rating extends HTTPHandler
      * second element is the best bright user.
      */
 
-    ArrayList<SQLModel_User> bestUsers = SQLInjector.<SQLModel_User>inject(SQLModel_User.class, new SQLAction_GetBestUsers());
+    ArrayList<Model_User> bestUsers = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetBestUsers());
 
-    SQLModel_User bestDarkUser = bestUsers.get(Side.DARK.ordinal());
-    SQLModel_User bestBrightUser = bestUsers.get(Side.BRIGHT.ordinal());
+    Model_User bestDarkUser = bestUsers.get(Side.DARK.ordinal());
+    Model_User bestBrightUser = bestUsers.get(Side.BRIGHT.ordinal());
 
-    if (!bestDarkUser.nickname.equals(Database.DARK_ZERO_USER_NICKNAME))
+    if (!bestDarkUser.id.equals(String.valueOf(Side.DARK.ordinal())))
       darkSide.put(Field.BEST_USER, new JSONObject(bestDarkUser, new String[] { Field.ID, Field.IMAGE }));
 
-    if (!bestBrightUser.nickname.equals(Database.BRIGHT_ZERO_USER_NICKNAME))
+    if (!bestBrightUser.id.equals(String.valueOf(Side.BRIGHT.ordinal())))
       brightSide.put(Field.BEST_USER, new JSONObject(bestBrightUser, new String[] { Field.ID, Field.IMAGE }));
 
 

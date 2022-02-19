@@ -23,11 +23,11 @@ import constants.Status;
 import constants.Field;
 import constants.Server;
 
-import actions.SQLAction_GetUserByEmail;
-import actions.SQLAction_GetUserByNickname;
-import actions.SQLAction_AddUser;
+import actions.Action_GetUserByEmail;
+import actions.Action_GetUserByNickname;
+import actions.Action_AddUser;
 
-import models.SQLModel_User;
+import models.Model_User;
 
 import tools.Tools;
 import tools.Token;
@@ -39,7 +39,7 @@ import tools.Token;
   pattern = "/signup",
   type = "POST"
 )
-public class HTTPHandler_SignUp extends HTTPHandler
+public class Handler_SignUp extends HTTPHandler
 {
   @Override
   public void handle(HTTPRequest req, HTTPResponse res)
@@ -71,7 +71,7 @@ public class HTTPHandler_SignUp extends HTTPHandler
      * checking for USER_ALREADY_EXIST
      */
  
-    if (SQLInjector.<SQLModel_User>inject(SQLModel_User.class, new SQLAction_GetUserByEmail(reqBody.getString(Field.EMAIL))).size() > 0)
+    if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserByEmail(reqBody.getString(Field.EMAIL))).size() > 0)
     {   
       res.setBody(resBody
         .put(Field.STATUS, Status.USER_ALREADY_EXIST.ordinal())
@@ -85,7 +85,7 @@ public class HTTPHandler_SignUp extends HTTPHandler
      * checking for NICKNAME_ALREADY_IN_USE
      */
  
-    if (SQLInjector.<SQLModel_User>inject(SQLModel_User.class, new SQLAction_GetUserByNickname(reqBody.getString(Field.NICKNAME))).size() > 0)
+    if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserByNickname(reqBody.getString(Field.NICKNAME))).size() > 0)
     {
       res.setBody(resBody
         .put(Field.STATUS, Status.NICKNAME_ALREADY_IN_USE.ordinal())
@@ -102,7 +102,7 @@ public class HTTPHandler_SignUp extends HTTPHandler
     String id = UUID.randomUUID().toString();
     String password_hash = Tools.sha256(reqBody.getString(Field.PASSWORD));
 
-    SQLInjector.<SQLModel_User>inject(SQLModel_User.class, new SQLAction_AddUser(id, password_hash,
+    SQLInjector.inject(new Action_AddUser(id, password_hash,
       reqBody.getString(Field.NICKNAME), reqBody.getString(Field.EMAIL), reqBody.getInt(Field.SIDE)));
 
 

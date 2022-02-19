@@ -19,10 +19,10 @@ import constants.Status;
 import constants.Field;
 import constants.Server;
 
-import actions.SQLAction_GetUserById;
-import actions.SQLAction_ConfirmUser;
+import actions.Action_GetUserById;
+import actions.Action_ConfirmUser;
 
-import models.SQLModel_User;
+import models.Model_User;
 
 import tools.Token;
 
@@ -33,7 +33,7 @@ import tools.Token;
   pattern = "/user/confirm",
   type = "POST"
 )
-public class HTTPHandler_Confirm extends HTTPHandler
+public class Handler_Confirm extends HTTPHandler
 {
   @Override
   public void handle(HTTPRequest req, HTTPResponse res)
@@ -76,8 +76,8 @@ public class HTTPHandler_Confirm extends HTTPHandler
       return;
     }
 
-    ArrayList<SQLModel_User> users = SQLInjector.<SQLModel_User>inject(SQLModel_User.class, new SQLAction_GetUserById(payload));
-    if (users.size() == 0 || users.get(0).confirmed)
+    ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(payload));
+    if (users.size() == 0 || users.get(0).confirmed == 1)
     {
       res.setBody(resBody
         .put(Field.STATUS, Status.INVALID_TOKEN.ordinal())
@@ -85,7 +85,7 @@ public class HTTPHandler_Confirm extends HTTPHandler
       return;
     }
 
-    SQLModel_User user = users.get(0);
+    Model_User user = users.get(0);
  
 
 
@@ -93,7 +93,7 @@ public class HTTPHandler_Confirm extends HTTPHandler
      * user confirmation
      */
 
-    SQLInjector.<SQLModel_User>inject(SQLModel_User.class, new SQLAction_ConfirmUser(user.id));
+    SQLInjector.inject(new Action_ConfirmUser(user.id));
 
 
 

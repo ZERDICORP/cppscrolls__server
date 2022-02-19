@@ -19,9 +19,9 @@ import constants.Status;
 import constants.Field;
 import constants.Server;
  
-import actions.SQLAction_GetUserByLoginAndPasswordHash;
+import actions.Action_GetUserByLoginAndPasswordHash;
  
-import models.SQLModel_User;
+import models.Model_User;
  
 import tools.Token;
 import tools.Tools;
@@ -33,7 +33,7 @@ import tools.Tools;
   pattern = "/signin",
   type = "POST"
 )
-public class HTTPHandler_SignIn extends HTTPHandler
+public class Handler_SignIn extends HTTPHandler
 {
   @Override
   public void handle(HTTPRequest req, HTTPResponse res)
@@ -65,8 +65,8 @@ public class HTTPHandler_SignIn extends HTTPHandler
      * checking for WRONG_LOGIN_OR_PASSWORD
      */
 
-    ArrayList<SQLModel_User> users = SQLInjector.<SQLModel_User>inject(SQLModel_User.class,
-      new SQLAction_GetUserByLoginAndPasswordHash(reqBody.getString(Field.LOGIN), Tools.sha256(reqBody.getString(Field.PASSWORD))));
+    ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class,
+      new Action_GetUserByLoginAndPasswordHash(reqBody.getString(Field.LOGIN), Tools.sha256(reqBody.getString(Field.PASSWORD))));
     if (users.size() == 0)
     {
       res.setBody(resBody
@@ -75,7 +75,7 @@ public class HTTPHandler_SignIn extends HTTPHandler
       return;
     }
 
-    SQLModel_User user = users.get(0);
+    Model_User user = users.get(0);
 
 
 
@@ -83,7 +83,7 @@ public class HTTPHandler_SignIn extends HTTPHandler
      * checking for USER_NOT_CONFIRMED
      */
 
-    if (!user.confirmed)
+    if (user.confirmed == 0)
     {
       res.setBody(resBody
         .put(Field.STATUS, Status.USER_NOT_CONFIRMED.ordinal())
@@ -106,6 +106,7 @@ public class HTTPHandler_SignIn extends HTTPHandler
 
     res.setBody(resBody
       .put(Field.STATUS, Status.OK.ordinal())
+			.put(Field.ID, user.id)
       .put(Field.TOKEN, token)
       .toString());
   }
