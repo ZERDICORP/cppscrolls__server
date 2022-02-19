@@ -14,6 +14,7 @@ public interface Field
   String ID = "id";
   String LOGIN = "login";
   String IMAGE = "image";
+	String USER = "user";
   String BEST_USER = "best_user";
   String BRIGHT_SIDE = "bright_side";
   String DARK_SIDE = "dark_side";
