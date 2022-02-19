@@ -9,18 +9,18 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import constants.Database;
 import constants.Side;
 import constants.FieldValueType;
+import constants.Regex;
 
 
 
 public class ValidateTools
 {
-  public static boolean isValidSide(int test) { return test == Side.DARK.ordinal() || test == Side.BRIGHT.ordinal(); }
-  public static boolean isValidPassword(String test) { return test.length() >= Database.MIN_PASSWORD_LENGTH; }
-  public static boolean isValidEmail(String test) { return test.length() > 0 && test.length() <= Database.MAX_EMAIL_LENGTH && test.matches("^[.a-zA-Z0-9_-]*@[a.-zA-Z0-9_-]*\\.[a.-zA-Z0-9_-]*$"); }
-  public static boolean isValidNickname(String test) { return test.length() > 0 && test.length() <= Database.MAX_NICKNAME_LENGTH && test.matches("^[a-zA-Z0-9_]*$"); }
+  public static boolean isValidSide(int test) { return String.valueOf(test).matches(Regex.SIDE); }
+  public static boolean isValidPassword(String test) { return test.matches(Regex.PASSWORD); }
+  public static boolean isValidEmail(String test) { return test.matches(Regex.EMAIL); }
+  public static boolean isValidNickname(String test) { return test.matches(Regex.NICKNAME); }
   
   public static boolean isValidFieldTypes(Map<String, String> requiredKeys, JSONObject jobj)
   {
