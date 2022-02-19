@@ -2,15 +2,17 @@ package constants;
 
 
 
-public class Server
+public interface Server
 {
-  public static final int PORT = 8080;
+  int PORT = 8080;
 
-  public static final String SECRET = "sdjhjk23jk4j3jk4jk34";
+	String API_PREFIX = "/api";
 
-  public static final String EMAIL_SENDER = "nikolaianikin2002@gmail.com";
-  public static final String EMAIL_SENDER_PASSWORD = "7|C]0JMyC,-`a^1oE$>w";
+  String SECRET = "sdjhjk23jk4j3jk4jk34";
 
-  public static final String DATABASE_NAME = "cpplord";
-  public static final String DATABASE_PASSWORD = "zerdicorp1937";
+  String EMAIL_SENDER = "nikolaianikin2002@gmail.com";
+  String EMAIL_SENDER_PASSWORD = "7|C]0JMyC,-`a^1oE$>w";
+
+  String DATABASE_NAME = "cppscrolls";
+  String DATABASE_PASSWORD = "zerdicorp1937";
 }
