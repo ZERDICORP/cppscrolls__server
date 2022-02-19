@@ -18,6 +18,7 @@ public enum Status
   NICKNAME_ALREADY_IN_USE,
   INVALID_TOKEN,
   WRONG_LOGIN_OR_PASSWORD,
+	USER_DOES_NOT_EXIST,
 
   ///////////////////
 
