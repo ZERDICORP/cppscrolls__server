@@ -16,6 +16,7 @@ import handlers.Handler_Confirm;
 import handlers.Handler_SignIn;
 import handlers.Handler_Rating;
 import handlers.Handler_GetUser;
+import handlers.Handler_GetRandomScroll;
 
 
 
@@ -28,8 +29,8 @@ public class Main
 
 
 
-		SQLConfig.auth("root", Server.DATABASE_PASSWORD);
-    SQLConfig.connect("org.mariadb.jdbc.Driver", "jdbc:mariadb://localhost:3306/" + Server.DATABASE_NAME + "?autoReconnect=true");
+		SQLConfig.auth(Server.DATABASE_USER, Server.DATABASE_PASSWORD);
+    SQLConfig.connect(Server.SQL_DRIVER, Server.SQL_CONNECTION_STRING);
 
 
 
@@ -44,6 +45,7 @@ public class Main
     server.addHandler(new Handler_SignIn());
     server.addHandler(new Handler_Rating());
 		server.addHandler(new Handler_GetUser());
+		server.addHandler(new Handler_GetRandomScroll());
 
     System.out.println("Server started listening on port " + HTTPConfig.getPort() + "..");
   
