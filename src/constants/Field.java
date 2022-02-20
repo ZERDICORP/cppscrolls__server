@@ -18,4 +18,5 @@ public interface Field
   String BEST_USER = "best_user";
   String BRIGHT_SIDE = "bright_side";
   String DARK_SIDE = "dark_side";
+	String SCROLL = "scroll";
 }
