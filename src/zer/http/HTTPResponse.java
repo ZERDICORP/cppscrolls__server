@@ -53,7 +53,7 @@ public class HTTPResponse
 		responseString += "HTTP/1.1 " + this.fields.get("Code") + " " + this.fields.get("Word") + "\r\n";
 		if (this.body.length != 0)
 		{
-			responseString += "Connection-Type: " + this.fields.get("Content-Type") + "\r\n";
+			responseString += "Content-Type: " + this.fields.get("Content-Type") + "\r\n";
 			responseString += "Content-Length: " + this.body.length;
 		}
 		responseString += "\r\n\r\n";
