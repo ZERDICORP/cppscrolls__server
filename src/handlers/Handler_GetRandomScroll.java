@@ -15,6 +15,7 @@ import zer.file.FType;
  
 import constants.Status;
 import constants.Field;
+import constants.Regex;
  
 import actions.Action_GetRandomScroll;
  
@@ -24,7 +25,7 @@ import models.Model_Scroll;
  
 @HTTPRoute
 (
-  pattern = "/scroll",
+  pattern = "/" + Regex.SIDE + "/scroll",
   type = "GET",
   withAuthToken = true
 )
@@ -40,16 +41,14 @@ public class Handler_GetRandomScroll extends HTTPHandler
 		/*\
 		 * We will not check if the scrolls
 		 * array is empty, as there will always
-		 * be at least 1 scroll in the base.
+		 * be at least 1 scroll in the database.
 		 */
 
-    ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetRandomScroll());
-
-    JSONObject scroll = new JSONObject(scrolls.get(0), new String[] {"id", "title", "description", "script_func"});
+    ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetRandomScroll(Integer.parseInt(req.path(0))));
 
     res.setBody(resBody
       .put(Field.STATUS, Status.OK.ordinal())
-      .put(Field.SCROLL, scroll)
+      .put(Field.SCROLL_ID, scrolls.get(0).id)
       .toString());
   }
 }

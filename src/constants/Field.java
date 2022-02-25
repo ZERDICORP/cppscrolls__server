@@ -12,6 +12,7 @@ public interface Field
   String EMAIL = "email";
   String PASSWORD = "password";
   String ID = "id";
+	String UID = "uid";
   String LOGIN = "login";
   String IMAGE = "image";
 	String USER = "user";
@@ -19,4 +20,5 @@ public interface Field
   String BRIGHT_SIDE = "bright_side";
   String DARK_SIDE = "dark_side";
 	String SCROLL = "scroll";
+	String SCROLL_ID = "scroll_id";
 }

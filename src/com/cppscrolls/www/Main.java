@@ -14,6 +14,8 @@ import middlewares.HTTPMiddleware_Auth;
 import handlers.Handler_SignUp;
 import handlers.Handler_Confirm;
 import handlers.Handler_SignIn;
+import handlers.Handler_UpdateProfile;
+/////////////////////////////////////////
 import handlers.Handler_Rating;
 import handlers.Handler_GetUser;
 import handlers.Handler_GetRandomScroll;

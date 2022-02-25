@@ -106,7 +106,7 @@ public class Handler_SignIn extends HTTPHandler
 
     res.setBody(resBody
       .put(Field.STATUS, Status.OK.ordinal())
-			.put(Field.ID, user.id)
+			.put(Field.UID, user.id)
       .put(Field.TOKEN, token)
       .toString());
   }
