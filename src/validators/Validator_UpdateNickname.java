@@ -14,7 +14,8 @@ import constants.Field;
 import constants.FieldValueType;
 
 
-public class Validator_SignUp
+
+public class Validator_UpdateNickname
 {
   private static Map<String, String> requiredKeys;
 
@@ -23,9 +24,6 @@ public class Validator_SignUp
     requiredKeys = new HashMap<>();
 
     requiredKeys.put(Field.NICKNAME, FieldValueType.STR);
-    requiredKeys.put(Field.EMAIL, FieldValueType.STR);
-    requiredKeys.put(Field.PASSWORD, FieldValueType.STR);
-    requiredKeys.put(Field.SIDE, FieldValueType.INT);
   }
 
   public static Status validate(String body)
@@ -59,34 +57,7 @@ public class Validator_SignUp
 
     if (!ValidateTools.isValidNickname(jobj.getString(Field.NICKNAME)))
       return Status.INVALID_NICKNAME;
-
-
-
-    /*
-     * checking for INVALID_EMAIL
-     */
-
-    if (!ValidateTools.isValidEmail(jobj.getString(Field.EMAIL)))
-      return Status.INVALID_EMAIL;
-
-
-
-    /*
-     * checking for INVALID_PASSWORD
-     */
-
-    if (!ValidateTools.isValidPassword(jobj.getString(Field.PASSWORD)))
-      return Status.INVALID_PASSWORD;
-
-
-
-    /*
-     * checking for INVALID_SIDE
-     */
-
-    if (!ValidateTools.isValidSide(jobj.getInt(Field.SIDE)))
-      return Status.INVALID_SIDE;
-    
+ 
     return Status.OK;
   }
 }

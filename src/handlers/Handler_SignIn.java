@@ -98,7 +98,7 @@ public class Handler_SignIn extends HTTPHandler
      */
 
     JSONObject payload = new JSONObject();
-    payload.put(Field.ID, user.id);
+    payload.put(Field.UID, user.id);
     
     String token = Token.build(payload.toString(), Server.SECRET);
 

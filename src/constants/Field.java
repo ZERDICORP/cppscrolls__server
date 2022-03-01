@@ -9,8 +9,10 @@ public interface Field
   String SCORE = "score";
   String TOKEN = "token";
   String NICKNAME = "nickname";
+	String BIO = "bio";
   String EMAIL = "email";
   String PASSWORD = "password";
+	String NEW_PASSWORD = "new_password";
   String ID = "id";
 	String UID = "uid";
   String LOGIN = "login";

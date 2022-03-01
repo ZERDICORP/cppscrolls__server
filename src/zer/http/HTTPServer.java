@@ -23,21 +23,22 @@ class SocketProcessor implements Runnable
 	private DataOutputStream outputStream = null;
 	private ArrayList<HTTPHandler> handlers;
   private ArrayList<HTTPMiddleware> middlewares; 
-	private byte[] readData = new byte[100000];
+	private byte[] buffer = new byte[1000000];
 
 	public SocketProcessor(Socket socket, ArrayList<HTTPHandler> handlers, ArrayList<HTTPMiddleware> middlewares) throws IOException
 	{
 		this.socket = socket;
-		this.inputStream = new DataInputStream(this.socket.getInputStream());
-		this.outputStream = new DataOutputStream(this.socket.getOutputStream());
+		inputStream = new DataInputStream(socket.getInputStream());
+		outputStream = new DataOutputStream(socket.getOutputStream());
+
 		this.handlers = handlers;
     this.middlewares = middlewares;
 	}
 	
   public void writeOutput(byte[] data) throws IOException
   {
-    this.outputStream.write(data);
-	  this.outputStream.flush();
+    outputStream.write(data);
+	  outputStream.flush();
   }
 
   @Override
@@ -45,18 +46,31 @@ class SocketProcessor implements Runnable
 	{
 		try
 		{
-			int readDataLength = this.inputStream.read(this.readData);
-			if (readDataLength == -1)
+			int bytesRead = inputStream.read(buffer);
+			if (bytesRead == -1)
 				return;
-
-			HTTPRequest req = new HTTPRequest();
 			
-      boolean isValid = req.parse(new String(this.readData, 0, readDataLength, StandardCharsets.UTF_8));
-			if (!isValid)
-				return;
+			HTTPRequest req = new HTTPRequest();
+			req.parse(new String(buffer, 0, bytesRead, StandardCharsets.ISO_8859_1));
+			System.out.println(new String(buffer, 0, bytesRead, StandardCharsets.ISO_8859_1));
+			if (!req.bodyIsEmpty())
+			{
+				int reqLength = Integer.parseInt(req.get("Content-Length"));
+				int bufferStart = 0;
+				int chunkSize = 0;
+				
+				while (chunkSize <= reqLength && (bytesRead = inputStream.read(buffer, bufferStart + bytesRead, 4096)) > 0)
+					bufferStart += chunkSize;
+
+				System.out.println(reqLength);
+
+				req = new HTTPRequest();
+				if (!req.parse(new String(buffer, 0, reqLength + bytesRead, StandardCharsets.UTF_8)))
+					return;
+			}
 
 			HTTPResponse res = new HTTPResponse();
-			for (HTTPHandler handler : this.handlers)
+			for (HTTPHandler handler : handlers)
 			{
 				Class<?> clazz = handler.getClass();
 				if (clazz.isAnnotationPresent(HTTPRoute.class))
@@ -69,10 +83,10 @@ class SocketProcessor implements Runnable
 						HTTPTool.matchExtensions(ann.extensions(), req.get("Path"))
 					)
           {
-            for (HTTPMiddleware middleware : this.middlewares)
+            for (HTTPMiddleware middleware : middlewares)
               if (!middleware.process(req, res, ann))
               {
-                this.writeOutput(res.make());
+                writeOutput(res.make());
                 return;
               }
               
@@ -88,7 +102,7 @@ class SocketProcessor implements Runnable
           .set("Code", "404")
           .set("Word", "NOT_FOUND");
 			
-			this.writeOutput(res.make());
+			writeOutput(res.make());
 		}
 		catch (Exception e) { e.printStackTrace(); }
 	}
@@ -99,8 +113,8 @@ public class HTTPServer extends HTTPConfig
 	private ArrayList<HTTPHandler> handlers = new ArrayList<>();
   private ArrayList<HTTPMiddleware> middlewares = new ArrayList<>();
 
-	public void addHandler(HTTPHandler h) { this.handlers.add(h); }
-  public void addMiddleware(HTTPMiddleware m) { this.middlewares.add(m); }
+	public void addHandler(HTTPHandler h) { handlers.add(h); }
+  public void addMiddleware(HTTPMiddleware m) { middlewares.add(m); }
 	public void run()
 	{
 		try
@@ -112,7 +126,7 @@ public class HTTPServer extends HTTPConfig
 			while (true)
 			{
 				Socket socket = serverSocket.accept();
-				new Thread(new SocketProcessor(socket, this.handlers, this.middlewares)).start();
+				new Thread(new SocketProcessor(socket, handlers, middlewares)).start();
 			}
 		}
 		catch (IOException e) { e.printStackTrace(); }

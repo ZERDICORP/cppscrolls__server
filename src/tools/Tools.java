@@ -11,6 +11,11 @@ import java.nio.charset.StandardCharsets;
 
 public class Tools
 {
+	public static boolean isValidImage(byte[] bytes)
+	{
+		return true; 
+	}	
+
   public static String sha256(String data) 
   {
     StringBuilder hexString = new StringBuilder();
