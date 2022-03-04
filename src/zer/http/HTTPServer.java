@@ -4,114 +4,174 @@ package zer.http;
 
 import java.net.Socket;
 import java.net.ServerSocket;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.io.DataOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import constants.Server;
-
 
 
 class SocketProcessor implements Runnable
 {
 	private Socket socket;
-	private DataInputStream inputStream = null;
-	private DataOutputStream outputStream = null;
+	private DataInputStream inStream;
+	private DataOutputStream outStream;
 	private ArrayList<HTTPHandler> handlers;
   private ArrayList<HTTPMiddleware> middlewares; 
-	private byte[] buffer = new byte[1000000];
+	private byte[] firstSegmentBuffer;
+	private byte[] bodyBuffer;
+
+	{
+		firstSegmentBuffer = new byte[8000];
+		bodyBuffer = null;
+	}
 
 	public SocketProcessor(Socket socket, ArrayList<HTTPHandler> handlers, ArrayList<HTTPMiddleware> middlewares) throws IOException
 	{
 		this.socket = socket;
-		inputStream = new DataInputStream(socket.getInputStream());
-		outputStream = new DataOutputStream(socket.getOutputStream());
+		inStream = new DataInputStream(socket.getInputStream());
+		outStream = new DataOutputStream(socket.getOutputStream());
 
 		this.handlers = handlers;
     this.middlewares = middlewares;
 	}
 	
-  public void writeOutput(byte[] data) throws IOException
-  {
-    outputStream.write(data);
-	  outputStream.flush();
-  }
+	public HTTPResponse process() throws IOException
+	{
+		HTTPResponse res = new HTTPResponse();
+
+
+
+		/*
+		 * receiving first segment
+		 */
+
+		int firstSegmentSize = inStream.read(firstSegmentBuffer);
+		if (firstSegmentSize == -1)
+			return null;
+		
+
+
+		/*
+		 * parse headers
+		 */
+
+		int headersSize = Tools.getHeadersSize(firstSegmentBuffer, firstSegmentSize);
+
+		HTTPRequest req = new HTTPRequest();
+		req.parseHeaders(new String(firstSegmentBuffer, 0, headersSize - 1, StandardCharsets.UTF_8));
+
+
+
+		/*
+		 * if content-length exists, we need to fill bodyBuffer
+		 */
+
+		if (req.headers().get("Content-Length") != null)
+		{
+			/*
+			 * validate bodySize
+			 */
+
+			int bodySize = Integer.parseInt(req.headers().get("Content-Length"));
+			if (bodySize > 265000)
+				return res.status(HTTPStatus.PAYLOAD_TOO_LARGE);
+
+			bodyBuffer = new byte[bodySize];
+			
+
+
+			/*
+			 * copying body bytes from firstSegmentBuffer to bodyBuffer
+			 */
+			
+			int bodyBytesLengthInFirstSegment = firstSegmentSize - (headersSize + 3);
+			for (int i = 0; i < bodyBytesLengthInFirstSegment; ++i)
+					bodyBuffer[i] = firstSegmentBuffer[i + (headersSize + 3)];
+
+
+
+			/*
+			 * receiving remaining segments
+			 */
+
+			int offset = bodyBytesLengthInFirstSegment;
+			int segmentSize = -1;
+
+			while (offset < bodySize && (segmentSize = inStream.read(bodyBuffer, offset, bodyBuffer.length - offset)) > 0)
+				offset += segmentSize;
+			
+			req.body(bodyBuffer);
+		}
+
+
+
+		/*
+		 * handlers pipeline
+		 */
+
+		for (HTTPHandler handler : handlers)
+		{
+			Class<?> clazz = handler.getClass();
+			if (clazz.isAnnotationPresent(HTTPRoute.class))
+			{
+				HTTPRoute ann = clazz.getAnnotation(HTTPRoute.class);
+				if
+				(
+					req.path().matches("^" + ann.pattern() + "$") &&
+					ann.type().toLowerCase().equals(req.type().toLowerCase()) &&
+					Tools.matchExtensions(ann.extensions(), req.path())
+				)
+				{
+					/*
+					 * middlewares pipeline
+					 */
+
+					for (HTTPMiddleware middleware : middlewares)
+						if (!middleware.process(req, res, ann))
+							return res;
+						
+					handler.handle(req, res);
+				}
+			}
+			else
+				Tools.log(LogMsg.NO_ANNOTATION, new String[] {clazz.getName()});
+		}
+
+		if (res.body().length == 0)
+			res.status(HTTPStatus.NOT_FOUND);
+		
+		return res;
+	}
 
   @Override
 	public void run()
 	{
 		try
 		{
-			int bytesRead = inputStream.read(buffer);
-			if (bytesRead == -1)
+			HTTPResponse res = process();
+			if (res == null)
 				return;
-			
-			HTTPRequest req = new HTTPRequest();
-			req.parse(new String(buffer, 0, bytesRead, StandardCharsets.ISO_8859_1));
-			System.out.println(new String(buffer, 0, bytesRead, StandardCharsets.ISO_8859_1));
-			if (!req.bodyIsEmpty())
-			{
-				int reqLength = Integer.parseInt(req.get("Content-Length"));
-				int bufferStart = 0;
-				int chunkSize = 0;
-				
-				while (chunkSize <= reqLength && (bytesRead = inputStream.read(buffer, bufferStart + bytesRead, 4096)) > 0)
-					bufferStart += chunkSize;
 
-				System.out.println(reqLength);
-
-				req = new HTTPRequest();
-				if (!req.parse(new String(buffer, 0, reqLength + bytesRead, StandardCharsets.UTF_8)))
-					return;
-			}
-
-			HTTPResponse res = new HTTPResponse();
-			for (HTTPHandler handler : handlers)
-			{
-				Class<?> clazz = handler.getClass();
-				if (clazz.isAnnotationPresent(HTTPRoute.class))
-				{
-					HTTPRoute ann = clazz.getAnnotation(HTTPRoute.class);
-					if
-					(
-						req.get("Path").matches("^" + Server.API_PREFIX + ann.pattern() + "$") &&
-						ann.type().toLowerCase().equals(req.get("Type").toLowerCase()) &&
-						HTTPTool.matchExtensions(ann.extensions(), req.get("Path"))
-					)
-          {
-            for (HTTPMiddleware middleware : middlewares)
-              if (!middleware.process(req, res, ann))
-              {
-                writeOutput(res.make());
-                return;
-              }
-              
-						handler.handle(req, res);
-          }
-				}
-				else
-					System.out.println("[warn]: handler \"" + clazz.getName() + "\" have no \"zer.http.HTTPRoute\" annotation.. ignore");
-			}
-
-			if (res.bodyIsEmpty())
-        res
-          .set("Code", "404")
-          .set("Word", "NOT_FOUND");
-			
-			writeOutput(res.make());
+			outStream.write(res.make());
+			outStream.flush();
 		}
-		catch (Exception e) { e.printStackTrace(); }
+		catch (IOException e) { e.printStackTrace(); }
 	}
 }
 
+
+
 public class HTTPServer extends HTTPConfig
 {
-	private ArrayList<HTTPHandler> handlers = new ArrayList<>();
-  private ArrayList<HTTPMiddleware> middlewares = new ArrayList<>();
+	private ArrayList<HTTPHandler> handlers;
+  private ArrayList<HTTPMiddleware> middlewares;
+
+	{
+		handlers = new ArrayList<>();
+		middlewares = new ArrayList<>();
+	}
 
 	public void addHandler(HTTPHandler h) { handlers.add(h); }
   public void addMiddleware(HTTPMiddleware m) { middlewares.add(m); }
@@ -119,10 +179,8 @@ public class HTTPServer extends HTTPConfig
 	{
 		try
 		{
-			/* create server socket */
 			ServerSocket serverSocket = new ServerSocket(port);
 
-			/* start listening */
 			while (true)
 			{
 				Socket socket = serverSocket.accept();

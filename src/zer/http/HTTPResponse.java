@@ -10,58 +10,30 @@ import java.io.IOException;
 
 
 
-public class HTTPResponse
+public class HTTPResponse extends HTTPMessage
 {
-	private HashMap<String, String> fields = new HashMap<>();
-	private byte[] body = new byte[0];
-
 	{
-		fields.put("Code", "200");
-		fields.put("Word", "OK");
+		startLine(HTTPStatus.OK);
 	}
-
-	public Boolean bodyIsEmpty() { return this.body.length == 0; }
-	public String get(String key) { return this.fields.get(key); }
-	public HTTPResponse set(String key, String sValue) { this.fields.put(key, sValue); return this; }
 	
-	public void setBody(String body) { this.body = body.getBytes(); }
-	public void setBody(byte[] body) { this.body = body; }
-	public void parse(String request) throws Exception
-	{
-		String[] parts = request.split("\r\n\r\n");
-
-		ArrayList<String> lines = new ArrayList<>(Arrays.asList(parts[0].split("\r\n")));
-		
-		String[] statusLine = lines.remove(0).split(" ");
-
-		this.fields.put("Code", statusLine[1]);
-		this.fields.put("Word", statusLine[2]);
-
-		for (String line : lines)
-		{
-			String[] temp = line.split(": ");
-			this.fields.put(temp[0], temp[1]);
-		}
-
-		if (parts.length > 1)
-			fields.put("Body", parts[1]);
-	}
+	public void body(String s) { body = s.getBytes(); }
+	public HTTPResponse status(String startLine) { this.startLine(startLine); return this; }
 
 	public byte[] make() throws IOException
 	{
-		String responseString = new String();
-		responseString += "HTTP/1.1 " + this.fields.get("Code") + " " + this.fields.get("Word") + "\r\n";
-		if (this.body.length != 0)
+		String res = new String();
+		res += "HTTP/1.1 " + startLine[0] + " " + startLine[1] + "\r\n";
+		if (body.length != 0)
 		{
-			responseString += "Content-Type: " + this.fields.get("Content-Type") + "\r\n";
-			responseString += "Content-Length: " + this.body.length;
+			res += "Content-Type: " + headers.get("Content-Type") + "\r\n";
+			res += "Content-Length: " + body.length;
 		}
-		responseString += "\r\n\r\n";
+		res += "\r\n\r\n";
 
-		ByteArrayOutputStream responseStream = new ByteArrayOutputStream();
-		responseStream.write(responseString.getBytes());
-		responseStream.write(this.body);
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		baos.write(res.getBytes());
+		baos.write(body);
 
-		return responseStream.toByteArray();
+		return baos.toByteArray();
 	}
 }
