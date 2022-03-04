@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
   
 import org.json.JSONObject;
@@ -20,12 +19,13 @@ import zer.file.FType;
 
 import validators.Validator_UpdateNickname;
 
-import constants.Status;
-import constants.Field;
-import constants.Regex;
+import constants.CServer;
+import constants.CUser;
+import constants.CStatus;
+import constants.CField;
  
-import actions.Action_GetUserByNickname;
-import actions.Action_UpdateUserNicknameById;
+import actions.Action_GetUserById;
+import actions.Action_UpdateUserImageById;
  
 import models.Model_User;
 
@@ -35,7 +35,7 @@ import tools.Tools;
 
 @HTTPRoute
 (
-  pattern = "/user/image",
+  pattern = CServer.API_PREFIX + "/user/image",
   type = "PUT",
   withAuthToken = true
 )
@@ -44,40 +44,62 @@ public class Handler_UpdateImage extends HTTPHandler
 	@Override
 	public void handle(HTTPRequest req, HTTPResponse res)
 	{
-		JSONObject tokenPayload = new JSONObject(req.get("Authentication-Token-Payload"));
+		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 
-		res.set("Content-Type", FType.JSON.mime());
+		res.headers().put("Content-Type", FType.JSON.mime());
     
     JSONObject resBody = new JSONObject();
 
+
+
 		/*
-     * checking for INVALID_IMAGE
+     * checking for USER_DOES_NOT_EXIST
      */
 
-    // if (Tools.isValidImage(req.get("Body")))
-    // {
-    //   res.setBody(resBody
-    //     .put(Field.STATUS, Status.INVALID_IMAGE.ordinal())
-    //     .toString());
-    //   return;   
-    // }
+    ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(tokenPayload.getString(CField.UID)));
+    if (users.size() == 0)
+    {
+      res.body(resBody
+        .put(CField.STATUS, CStatus.USER_DOES_NOT_EXIST.ordinal())
+        .toString());
+      return;
+    }
+  
+    Model_User user = users.get(0);
 
-	
-		// String fileName = System.currentTimeMillis() + ".png";
-		// 
-		// byte[] data = req.get("Body").getBytes();
+		String imageFileName = user.image;
 
-		// try
-		// {
-		// 	OutputStream outputStream = new FileOutputStream("images/" + fileName);
-		// 	outputStream.write(data);
-		// }
-		// catch (IOException e) { e.printStackTrace(); }
 
-		// SQLInjector.inject(new Action_UpdateUserImage(tokenPayload.getString(Field.UID), reqBody.getString(Field.NICKNAME)));
 
-		res.setBody(resBody
-      .put(Field.STATUS, Status.OK.ordinal())
+		/*
+		 * if user have default image, we generate
+		 * new image name and change image of the user
+		 */
+
+		if (user.image.equals(CUser.DEFAULT_IMAGE_NAME))
+		{
+			imageFileName = System.currentTimeMillis() + ".jpg";
+			SQLInjector.inject(new Action_UpdateUserImageById(tokenPayload.getString(CField.UID), imageFileName));
+		}
+
+
+
+		/*
+		 * write image to file called {imageFileName}
+		 */
+
+		try
+		{
+			OutputStream os = new FileOutputStream(CServer.IMAGES_FOLDER_PATH + imageFileName);
+			os.write(req.body());
+			os.close();
+		}
+		catch (IOException e) { e.printStackTrace(); }
+
+
+
+		res.body(resBody
+      .put(CField.STATUS, CStatus.OK.ordinal())
       .toString());
 	}
 }
