@@ -9,9 +9,9 @@ import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
 import zer.http.HTTPRoute;
 
-import constants.Status;
-import constants.Field;
-import constants.Server;
+import constants.CStatus;
+import constants.CField;
+import constants.CServer;
 
 import tools.Token;
 
@@ -35,16 +35,16 @@ public class HTTPMiddleware_Auth extends HTTPMiddleware
      * checking for INVALID_TOKEN
      */
 
-    String payload = Token.access(req.get("Authentication-Token"), Server.SECRET);
+    String payload = Token.access(req.headers().get("Authentication-Token"), CServer.SECRET);
     if (payload == null)
     {   
-      res.setBody(new JSONObject()
-        .put(Field.STATUS, Status.INVALID_TOKEN.ordinal())
+      res.body(new JSONObject()
+        .put(CField.STATUS, CStatus.INVALID_TOKEN.ordinal())
         .toString());
       return false;
     }   
 
-    req.set("Authentication-Token-Payload", payload);
+    req.headers().put("Authentication-Token-Payload", payload);
 
     return true;
   }

@@ -9,18 +9,18 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import constants.Side;
-import constants.FieldValueType;
-import constants.Regex;
+import constants.CSide;
+import constants.CFieldValueType;
+import constants.CRegex;
 
 
 
 public class ValidateTools
 {
-  public static boolean isValidSide(int test) { return String.valueOf(test).matches(Regex.SIDE); }
-  public static boolean isValidPassword(String test) { return test.matches(Regex.PASSWORD); }
-  public static boolean isValidEmail(String test) { return test.matches(Regex.EMAIL); }
-  public static boolean isValidNickname(String test) { return test.matches(Regex.NICKNAME); }
+  public static boolean isValidSide(int test) { return String.valueOf(test).matches(CRegex.SIDE); }
+  public static boolean isValidPassword(String test) { return test.matches(CRegex.PASSWORD); }
+  public static boolean isValidEmail(String test) { return test.matches(CRegex.EMAIL); }
+  public static boolean isValidNickname(String test) { return test.matches(CRegex.NICKNAME); }
   
   public static boolean isValidFieldTypes(Map<String, String> requiredKeys, JSONObject jobj)
   {
@@ -29,8 +29,8 @@ public class ValidateTools
       for (Map.Entry<String, String> entry : requiredKeys.entrySet())
         switch (entry.getValue())
         {
-          case FieldValueType.STR: jobj.getString(entry.getKey()); break;
-          case FieldValueType.INT: jobj.getInt(entry.getKey()); break;
+          case CFieldValueType.STR: jobj.getString(entry.getKey()); break;
+          case CFieldValueType.INT: jobj.getInt(entry.getKey()); break;
         } 
     }
     catch (JSONException e) { return false; }
