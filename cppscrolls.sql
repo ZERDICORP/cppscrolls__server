@@ -133,7 +133,7 @@ CREATE TABLE `users` (
   `email` varchar(320) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password_hash` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
   `bio` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `image` varchar(2048) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '/images/default.png',
+  `image` varchar(2048) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `score` int(11) NOT NULL DEFAULT 0,
   `side` int(11) NOT NULL,
   `confirmed` tinyint(1) NOT NULL DEFAULT 0,
@@ -150,8 +150,8 @@ CREATE TABLE `users` (
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
 INSERT INTO `users` VALUES
-('0','0','0','0',NULL,'/images/default.png',0,0,1),
-('1','1','1','1',NULL,'/images/default.png',0,1,1);
+('0','0','0','0',NULL,NULL,0,0,1),
+('1','1','1','1',NULL,NULL,0,1,1);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -164,4 +164,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-24 18:32:41
+-- Dump completed on 2022-03-05 20:18:03
