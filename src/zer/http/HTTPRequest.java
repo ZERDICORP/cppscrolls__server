@@ -6,13 +6,15 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 
 
 
 public class HTTPRequest extends HTTPMessage
 {
 	private ArrayList<String> splitPath;
-
+	
+	public String bodyAsString() { return new String(body, StandardCharsets.UTF_8); }
 	public String type() { return startLine[0]; }
 	public String path() { return startLine[1]; }
 	public String path(int index) { return splitPath.get(index); }
