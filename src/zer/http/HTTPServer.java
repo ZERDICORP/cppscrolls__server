@@ -120,8 +120,7 @@ class SocketProcessor implements Runnable
 				if
 				(
 					req.path().matches("^" + ann.pattern() + "$") &&
-					ann.type().toLowerCase().equals(req.type().toLowerCase()) &&
-					Tools.matchExtensions(ann.extensions(), req.path())
+					ann.type().toLowerCase().equals(req.type().toLowerCase())
 				)
 				{
 					/*

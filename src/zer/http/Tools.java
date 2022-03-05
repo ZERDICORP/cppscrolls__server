@@ -24,15 +24,4 @@ class Tools
 				return i - 2;
 		return b.length;
 	}
-
-	public static boolean matchExtensions(String[] extensions, String path) throws IOException
-	{
-		if (extensions.length == 0)
-			return true;
-		
-		for (String extension : extensions)
-			if (FTool.type(path).equals(FTool.type("." + extension)))
-				return true;
-		return false;
-	}
 }
