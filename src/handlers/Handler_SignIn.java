@@ -15,9 +15,9 @@ import zer.file.FType;
  
 import validators.Validator_SignIn;
  
-import constants.Status;
-import constants.Field;
-import constants.Server;
+import constants.CStatus;
+import constants.CField;
+import constants.CServer;
  
 import actions.Action_GetUserByLoginAndPasswordHash;
  
@@ -30,7 +30,7 @@ import tools.Tools;
 
 @HTTPRoute
 (
-  pattern = "/signin",
+  pattern = CServer.API_PREFIX + "/signin",
   type = "POST"
 )
 public class Handler_SignIn extends HTTPHandler
@@ -38,9 +38,11 @@ public class Handler_SignIn extends HTTPHandler
   @Override
   public void handle(HTTPRequest req, HTTPResponse res)
   {   
-    res.set("Content-Type", FType.JSON.mime());
+    res.headers().put("Content-Type", FType.JSON.mime());
    
     JSONObject resBody = new JSONObject();
+
+		String bodyAsString = req.bodyAsString();
  
  
  
@@ -48,16 +50,16 @@ public class Handler_SignIn extends HTTPHandler
      * request body validation
      */
  
-    Status status = Validator_SignIn.validate(req.get("Body"));
-    if (status != Status.OK)
+    CStatus status = Validator_SignIn.validate(bodyAsString);
+    if (status != CStatus.OK)
     {   
-      res.setBody(resBody
-        .put(Field.STATUS, status.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, status.ordinal())
         .toString());
       return;
     }
      
-    JSONObject reqBody = new JSONObject(req.get("Body"));
+    JSONObject reqBody = new JSONObject(bodyAsString);
 
 
 
@@ -66,11 +68,11 @@ public class Handler_SignIn extends HTTPHandler
      */
 
     ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class,
-      new Action_GetUserByLoginAndPasswordHash(reqBody.getString(Field.LOGIN), Tools.sha256(reqBody.getString(Field.PASSWORD))));
+      new Action_GetUserByLoginAndPasswordHash(reqBody.getString(CField.LOGIN), Tools.sha256(reqBody.getString(CField.PASSWORD))));
     if (users.size() == 0)
     {
-      res.setBody(resBody
-        .put(Field.STATUS, Status.WRONG_LOGIN_OR_PASSWORD.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, CStatus.WRONG_LOGIN_OR_PASSWORD.ordinal())
         .toString());
       return;
     }
@@ -85,8 +87,8 @@ public class Handler_SignIn extends HTTPHandler
 
     if (user.confirmed == 0)
     {
-      res.setBody(resBody
-        .put(Field.STATUS, Status.USER_NOT_CONFIRMED.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, CStatus.USER_NOT_CONFIRMED.ordinal())
         .toString());
       return;
     } 
@@ -98,16 +100,16 @@ public class Handler_SignIn extends HTTPHandler
      */
 
     JSONObject payload = new JSONObject();
-    payload.put(Field.UID, user.id);
+    payload.put(CField.UID, user.id);
     
-    String token = Token.build(payload.toString(), Server.SECRET);
+    String token = Token.build(payload.toString(), CServer.SECRET);
 
 
 
-    res.setBody(resBody
-      .put(Field.STATUS, Status.OK.ordinal())
-			.put(Field.UID, user.id)
-      .put(Field.TOKEN, token)
+    res.body(resBody
+      .put(CField.STATUS, CStatus.OK.ordinal())
+			.put(CField.UID, user.id)
+      .put(CField.TOKEN, token)
       .toString());
   }
 }

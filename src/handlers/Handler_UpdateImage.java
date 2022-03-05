@@ -20,9 +20,9 @@ import zer.file.FType;
 import validators.Validator_UpdateNickname;
 
 import constants.CServer;
-import constants.CUser;
 import constants.CStatus;
 import constants.CField;
+import constants.CMark;
  
 import actions.Action_GetUserById;
 import actions.Action_UpdateUserImageById;
@@ -37,7 +37,9 @@ import tools.Tools;
 (
   pattern = CServer.API_PREFIX + "/user/image",
   type = "PUT",
-  withAuthToken = true
+  marks = {
+		CMark.WITH_AUTH_TOKEN
+	}
 )
 public class Handler_UpdateImage extends HTTPHandler
 {
@@ -76,16 +78,16 @@ public class Handler_UpdateImage extends HTTPHandler
 		 * new image name and change image of the user
 		 */
 
-		if (user.image.equals(CUser.DEFAULT_IMAGE_NAME))
+		if (imageFileName == null)
 		{
-			imageFileName = System.currentTimeMillis() + ".jpg";
+			imageFileName = user.nickname + ".jpg";
 			SQLInjector.inject(new Action_UpdateUserImageById(tokenPayload.getString(CField.UID), imageFileName));
 		}
 
 
 
 		/*
-		 * write image to file called {imageFileName}
+		 * write image to file called {imageFileName}.jpg
 		 */
 
 		try

@@ -15,9 +15,10 @@ import zer.file.FType;
 
 import validators.Validator_UpdateBio;
 
-import constants.Status;
-import constants.Field;
-import constants.Regex;
+import constants.CStatus;
+import constants.CField;
+import constants.CServer;
+import constants.CMark;
  
 import actions.Action_GetUserByNickname;
 import actions.Action_UpdateUserBioById;
@@ -28,20 +29,24 @@ import models.Model_User;
 
 @HTTPRoute
 (
-  pattern = "/user/bio",
+  pattern = CServer.API_PREFIX + "/user/bio",
   type = "PUT",
-  withAuthToken = true
+  marks = {
+		CMark.WITH_AUTH_TOKEN
+	}
 )
 public class Handler_UpdateBio extends HTTPHandler
 {
 	@Override
 	public void handle(HTTPRequest req, HTTPResponse res)
 	{
-		JSONObject tokenPayload = new JSONObject(req.get("Authentication-Token-Payload"));
+		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 
-		res.set("Content-Type", FType.JSON.mime());
+		res.headers().put("Content-Type", FType.JSON.mime());
     
     JSONObject resBody = new JSONObject();
+
+		String bodyAsString = req.bodyAsString();
 
 
 
@@ -49,25 +54,25 @@ public class Handler_UpdateBio extends HTTPHandler
      * request body validation
      */
 
-    Status status = Validator_UpdateBio.validate(req.get("Body"));
-    if (status != Status.OK)
+    CStatus status = Validator_UpdateBio.validate(bodyAsString);
+    if (status != CStatus.OK)
     {
-      res.setBody(resBody
-        .put(Field.STATUS, status.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, status.ordinal())
         .toString());
       return;   
     }
 
-    JSONObject reqBody = new JSONObject(req.get("Body"));
+    JSONObject reqBody = new JSONObject(bodyAsString);
 
 
 
-		SQLInjector.inject(new Action_UpdateUserBioById(tokenPayload.getString("uid"), reqBody.getString("bio")));
+		SQLInjector.inject(new Action_UpdateUserBioById(tokenPayload.getString(CField.UID), reqBody.getString(CField.BIO)));
 
 
 
-		res.setBody(resBody
-      .put(Field.STATUS, Status.OK.ordinal())
+		res.body(resBody
+      .put(CField.STATUS, CStatus.OK.ordinal())
       .toString());
 	}
 }

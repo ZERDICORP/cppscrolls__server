@@ -15,9 +15,10 @@ import zer.file.FType;
 
 import validators.Validator_UpdatePassword;
 
-import constants.Status;
-import constants.Field;
-import constants.Regex;
+import constants.CStatus;
+import constants.CField;
+import constants.CServer;
+import constants.CMark;
  
 import actions.Action_GetUserById;
 import actions.Action_UpdateUserPasswordHashById;
@@ -30,20 +31,24 @@ import tools.Tools;
 
 @HTTPRoute
 (
-  pattern = "/user/password",
+  pattern = CServer.API_PREFIX + "/user/password",
   type = "PUT",
-  withAuthToken = true
+  marks = {
+		CMark.WITH_AUTH_TOKEN
+	}
 )
 public class Handler_UpdatePassword extends HTTPHandler
 {
 	@Override
 	public void handle(HTTPRequest req, HTTPResponse res)
 	{
-		JSONObject tokenPayload = new JSONObject(req.get("Authentication-Token-Payload"));
+		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 
-		res.set("Content-Type", FType.JSON.mime());
+		res.headers().put("Content-Type", FType.JSON.mime());
     
     JSONObject resBody = new JSONObject();
+
+		String bodyAsString = req.bodyAsString();
 		
 
 
@@ -51,16 +56,16 @@ public class Handler_UpdatePassword extends HTTPHandler
      * request body validation
      */
 
-    Status status = Validator_UpdatePassword.validate(req.get("Body"));
-    if (status != Status.OK)
+    CStatus status = Validator_UpdatePassword.validate(bodyAsString);
+    if (status != CStatus.OK)
     {
-      res.setBody(resBody
-        .put(Field.STATUS, status.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, status.ordinal())
         .toString());
       return;   
     }
 
-    JSONObject reqBody = new JSONObject(req.get("Body"));
+    JSONObject reqBody = new JSONObject(bodyAsString);
 
 
 
@@ -68,11 +73,11 @@ public class Handler_UpdatePassword extends HTTPHandler
 		 * checking for USER_DOES_NOT_EXIST
 		 */
 		
-		ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(tokenPayload.getString(Field.UID)));
+		ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(tokenPayload.getString(CField.UID)));
 		if (users.size() == 0)
 		{   
-      res.setBody(resBody
-        .put(Field.STATUS, Status.USER_DOES_NOT_EXIST.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, CStatus.USER_DOES_NOT_EXIST.ordinal())
         .toString());
       return;
     }
@@ -85,23 +90,23 @@ public class Handler_UpdatePassword extends HTTPHandler
 		 * checking for ACCESS_DENIED
 		 */
 
-    if (!user.password_hash.equals(Tools.sha256(reqBody.getString(Field.PASSWORD))))
+    if (!user.password_hash.equals(Tools.sha256(reqBody.getString(CField.PASSWORD))))
 		{   
-      res.setBody(resBody
-        .put(Field.STATUS, Status.ACCESS_DENIED.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, CStatus.ACCESS_DENIED.ordinal())
         .toString());
       return;
     }
 
 
 
-		String password_hash = Tools.sha256(reqBody.getString(Field.NEW_PASSWORD));
-		SQLInjector.inject(new Action_UpdateUserPasswordHashById(tokenPayload.getString(Field.UID), password_hash));
+		String password_hash = Tools.sha256(reqBody.getString(CField.NEW_PASSWORD));
+		SQLInjector.inject(new Action_UpdateUserPasswordHashById(tokenPayload.getString(CField.UID), password_hash));
 
 
 
-		res.setBody(resBody
-      .put(Field.STATUS, Status.OK.ordinal())
+		res.body(resBody
+      .put(CField.STATUS, CStatus.OK.ordinal())
       .toString());
 	}
 }

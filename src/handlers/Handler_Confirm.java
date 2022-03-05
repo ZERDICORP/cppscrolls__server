@@ -15,9 +15,9 @@ import zer.file.FType;
 
 import validators.Validator_Confirm;
 
-import constants.Status;
-import constants.Field;
-import constants.Server;
+import constants.CStatus;
+import constants.CField;
+import constants.CServer;
 
 import actions.Action_GetUserById;
 import actions.Action_ConfirmUser;
@@ -30,7 +30,7 @@ import tools.Token;
 
 @HTTPRoute
 (
-  pattern = "/user/confirm",
+  pattern = CServer.API_PREFIX + "/user/confirm",
   type = "POST"
 )
 public class Handler_Confirm extends HTTPHandler
@@ -38,26 +38,27 @@ public class Handler_Confirm extends HTTPHandler
   @Override
   public void handle(HTTPRequest req, HTTPResponse res)
   {
-    res.set("Content-Type", FType.JSON.mime());
+    res.headers().put("Content-Type", FType.JSON.mime());
     
     JSONObject resBody = new JSONObject();
 
+		String bodyAsString = req.bodyAsString();
 
 
     /*
      * request body validation
      */
 
-    Status status = Validator_Confirm.validate(req.get("Body"));
-    if (status != Status.OK)
+    CStatus status = Validator_Confirm.validate(req.bodyAsString());
+    if (status != CStatus.OK)
     {
-      res.setBody(resBody
-        .put(Field.STATUS, status.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, status.ordinal())
         .toString());
       return;   
     }
 
-    JSONObject reqBody = new JSONObject(req.get("Body"));
+    JSONObject reqBody = new JSONObject(req.bodyAsString());
 
 
 
@@ -67,11 +68,11 @@ public class Handler_Confirm extends HTTPHandler
      * The variable "payload" stores the user ID.
      */
 
-    String payload = Token.access(reqBody.getString(Field.TOKEN), Server.SECRET);
+    String payload = Token.access(reqBody.getString(CField.TOKEN), CServer.SECRET);
     if (payload == null)
     {
-      res.setBody(resBody
-        .put(Field.STATUS, Status.INVALID_TOKEN.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, CStatus.INVALID_TOKEN.ordinal())
         .toString());
       return;
     }
@@ -79,8 +80,8 @@ public class Handler_Confirm extends HTTPHandler
     ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(payload));
     if (users.size() == 0 || users.get(0).confirmed == 1)
     {
-      res.setBody(resBody
-        .put(Field.STATUS, Status.INVALID_TOKEN.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, CStatus.INVALID_TOKEN.ordinal())
         .toString());
       return;
     }
@@ -97,9 +98,9 @@ public class Handler_Confirm extends HTTPHandler
 
 
 
-    res.setBody(resBody
-      .put(Field.STATUS, Status.OK.ordinal())
-      .put(Field.SIDE, user.side)
+    res.body(resBody
+      .put(CField.STATUS, CStatus.OK.ordinal())
+      .put(CField.SIDE, user.side)
       .toString());
   }
 }

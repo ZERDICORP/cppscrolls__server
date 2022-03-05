@@ -9,9 +9,9 @@ import org.json.JSONObject;
 
 import tools.ValidateTools;
 
-import constants.Status;
-import constants.Field;
-import constants.FieldValueType;
+import constants.CStatus;
+import constants.CField;
+import constants.CFieldValueType;
 
 
 
@@ -23,23 +23,23 @@ public class Validator_UpdatePassword
   {
     requiredKeys = new HashMap<>();
 
-    requiredKeys.put(Field.PASSWORD, FieldValueType.STR);
-		requiredKeys.put(Field.NEW_PASSWORD, FieldValueType.STR);
+    requiredKeys.put(CField.PASSWORD, CFieldValueType.STR);
+		requiredKeys.put(CField.NEW_PASSWORD, CFieldValueType.STR);
   }
 
-  public static Status validate(String body)
+  public static CStatus validate(String body)
   {
     /*
      * checking for INVALID_REQUEST
      */
 
     if (body == null || !ValidateTools.isValidJSONObject(body))
-      return Status.INVALID_REQUEST;
+      return CStatus.INVALID_REQUEST;
 
     JSONObject jobj = new JSONObject(body);
 
     if (!ValidateTools.isIdenticalKeys(requiredKeys.keySet(), jobj.keySet()))
-      return Status.INVALID_REQUEST;
+      return CStatus.INVALID_REQUEST;
 
 
 
@@ -48,7 +48,7 @@ public class Validator_UpdatePassword
      */
 
     if (!ValidateTools.isValidFieldTypes(requiredKeys, jobj))
-      return Status.INVALID_FIELD_TYPE;
+      return CStatus.INVALID_FIELD_TYPE;
 
 
 
@@ -56,9 +56,9 @@ public class Validator_UpdatePassword
      * checking for INVALID_PASSWORD
      */
 
-    if (!ValidateTools.isValidPassword(jobj.getString(Field.PASSWORD)) || !ValidateTools.isValidPassword(jobj.getString(Field.NEW_PASSWORD)))
-      return Status.INVALID_PASSWORD;
+    if (!ValidateTools.isValidPassword(jobj.getString(CField.PASSWORD)) || !ValidateTools.isValidPassword(jobj.getString(CField.NEW_PASSWORD)))
+      return CStatus.INVALID_PASSWORD;
  
-    return Status.OK;
+    return CStatus.OK;
   }
 }

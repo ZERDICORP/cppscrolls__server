@@ -9,9 +9,9 @@ import org.json.JSONObject;
 
 import tools.ValidateTools;
 
-import constants.Status;
-import constants.Field;
-import constants.FieldValueType;
+import constants.CStatus;
+import constants.CField;
+import constants.CFieldValueType;
 
 
 public class Validator_SignUp
@@ -22,25 +22,25 @@ public class Validator_SignUp
   {
     requiredKeys = new HashMap<>();
 
-    requiredKeys.put(Field.NICKNAME, FieldValueType.STR);
-    requiredKeys.put(Field.EMAIL, FieldValueType.STR);
-    requiredKeys.put(Field.PASSWORD, FieldValueType.STR);
-    requiredKeys.put(Field.SIDE, FieldValueType.INT);
+    requiredKeys.put(CField.NICKNAME, CFieldValueType.STR);
+    requiredKeys.put(CField.EMAIL, CFieldValueType.STR);
+    requiredKeys.put(CField.PASSWORD, CFieldValueType.STR);
+    requiredKeys.put(CField.SIDE, CFieldValueType.INT);
   }
 
-  public static Status validate(String body)
+  public static CStatus validate(String body)
   {
     /*
      * checking for INVALID_REQUEST
      */
 
     if (body == null || !ValidateTools.isValidJSONObject(body))
-      return Status.INVALID_REQUEST;
+      return CStatus.INVALID_REQUEST;
 
     JSONObject jobj = new JSONObject(body);
 
     if (!ValidateTools.isIdenticalKeys(requiredKeys.keySet(), jobj.keySet()))
-      return Status.INVALID_REQUEST;
+      return CStatus.INVALID_REQUEST;
 
 
 
@@ -49,7 +49,7 @@ public class Validator_SignUp
      */
 
     if (!ValidateTools.isValidFieldTypes(requiredKeys, jobj))
-      return Status.INVALID_FIELD_TYPE;
+      return CStatus.INVALID_FIELD_TYPE;
 
 
 
@@ -57,8 +57,8 @@ public class Validator_SignUp
      * checking for INVALID_NICKNAME
      */
 
-    if (!ValidateTools.isValidNickname(jobj.getString(Field.NICKNAME)))
-      return Status.INVALID_NICKNAME;
+    if (!ValidateTools.isValidNickname(jobj.getString(CField.NICKNAME)))
+      return CStatus.INVALID_NICKNAME;
 
 
 
@@ -66,8 +66,8 @@ public class Validator_SignUp
      * checking for INVALID_EMAIL
      */
 
-    if (!ValidateTools.isValidEmail(jobj.getString(Field.EMAIL)))
-      return Status.INVALID_EMAIL;
+    if (!ValidateTools.isValidEmail(jobj.getString(CField.EMAIL)))
+      return CStatus.INVALID_EMAIL;
 
 
 
@@ -75,8 +75,8 @@ public class Validator_SignUp
      * checking for INVALID_PASSWORD
      */
 
-    if (!ValidateTools.isValidPassword(jobj.getString(Field.PASSWORD)))
-      return Status.INVALID_PASSWORD;
+    if (!ValidateTools.isValidPassword(jobj.getString(CField.PASSWORD)))
+      return CStatus.INVALID_PASSWORD;
 
 
 
@@ -84,9 +84,9 @@ public class Validator_SignUp
      * checking for INVALID_SIDE
      */
 
-    if (!ValidateTools.isValidSide(jobj.getInt(Field.SIDE)))
-      return Status.INVALID_SIDE;
+    if (!ValidateTools.isValidSide(jobj.getInt(CField.SIDE)))
+      return CStatus.INVALID_SIDE;
     
-    return Status.OK;
+    return CStatus.OK;
   }
 }

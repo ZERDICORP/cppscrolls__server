@@ -19,9 +19,9 @@ import zer.mail.MAILClient;
 
 import validators.Validator_SignUp;
 
-import constants.Status;
-import constants.Field;
-import constants.Server;
+import constants.CStatus;
+import constants.CField;
+import constants.CServer;
 
 import actions.Action_GetUserByEmail;
 import actions.Action_GetUserByNickname;
@@ -36,7 +36,7 @@ import tools.Token;
 
 @HTTPRoute
 (
-  pattern = "/signup",
+  pattern = CServer.API_PREFIX + "/signup",
   type = "POST"
 )
 public class Handler_SignUp extends HTTPHandler
@@ -44,26 +44,27 @@ public class Handler_SignUp extends HTTPHandler
   @Override
   public void handle(HTTPRequest req, HTTPResponse res)
   {
-    res.set("Content-Type", FType.JSON.mime());
+    res.headers().put("Content-Type", FType.JSON.mime());
     
     JSONObject resBody = new JSONObject();
 
+		String bodyAsString = req.bodyAsString();
 
 
     /*
      * request body validation
      */
 
-    Status status = Validator_SignUp.validate(req.get("Body"));
-    if (status != Status.OK)
+    CStatus status = Validator_SignUp.validate(bodyAsString);
+    if (status != CStatus.OK)
     {
-      res.setBody(resBody
-        .put(Field.STATUS, status.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, status.ordinal())
         .toString());
-      return;   
+      return;
     }
 
-    JSONObject reqBody = new JSONObject(req.get("Body"));
+    JSONObject reqBody = new JSONObject(bodyAsString);
 
 
 
@@ -71,10 +72,10 @@ public class Handler_SignUp extends HTTPHandler
      * checking for USER_ALREADY_EXIST
      */
  
-    if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserByEmail(reqBody.getString(Field.EMAIL))).size() > 0)
+    if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserByEmail(reqBody.getString(CField.EMAIL))).size() > 0)
     {   
-      res.setBody(resBody
-        .put(Field.STATUS, Status.USER_ALREADY_EXIST.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, CStatus.USER_ALREADY_EXIST.ordinal())
         .toString());
       return;
     }   
@@ -85,10 +86,10 @@ public class Handler_SignUp extends HTTPHandler
      * checking for NICKNAME_ALREADY_IN_USE
      */
  
-    if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserByNickname(reqBody.getString(Field.NICKNAME))).size() > 0)
+    if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserByNickname(reqBody.getString(CField.NICKNAME))).size() > 0)
     {
-      res.setBody(resBody
-        .put(Field.STATUS, Status.NICKNAME_ALREADY_IN_USE.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, CStatus.NICKNAME_ALREADY_IN_USE.ordinal())
         .toString());
       return;
     }
@@ -100,10 +101,10 @@ public class Handler_SignUp extends HTTPHandler
      */
 
     String id = UUID.randomUUID().toString();
-    String password_hash = Tools.sha256(reqBody.getString(Field.PASSWORD));
+    String password_hash = Tools.sha256(reqBody.getString(CField.PASSWORD));
 
     SQLInjector.inject(new Action_AddUser(id, password_hash,
-      reqBody.getString(Field.NICKNAME), reqBody.getString(Field.EMAIL), reqBody.getInt(Field.SIDE)));
+      reqBody.getString(CField.NICKNAME), reqBody.getString(CField.EMAIL), reqBody.getInt(CField.SIDE)));
 
 
 
@@ -111,7 +112,7 @@ public class Handler_SignUp extends HTTPHandler
      * creating confirmation token
      */
     
-    String token = Token.build(id, Server.SECRET);
+    String token = Token.build(id, CServer.SECRET);
 
 
 
@@ -119,12 +120,12 @@ public class Handler_SignUp extends HTTPHandler
      * sending confirmation email
      */
 
-    MAILClient.send(reqBody.getString(Field.EMAIL), "CPP Scrolls", token);
+    MAILClient.send(reqBody.getString(CField.EMAIL), "CPP Scrolls", token);
 
 
 
-    res.setBody(resBody
-      .put(Field.STATUS, Status.OK.ordinal())
+    res.body(resBody
+      .put(CField.STATUS, CStatus.OK.ordinal())
       .toString());
   }
 }

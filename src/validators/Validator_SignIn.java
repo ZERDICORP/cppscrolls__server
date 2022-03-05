@@ -9,9 +9,9 @@ import org.json.JSONObject;
 
 import tools.ValidateTools;
 
-import constants.Status;
-import constants.Field;
-import constants.FieldValueType;
+import constants.CStatus;
+import constants.CField;
+import constants.CFieldValueType;
 
 
 
@@ -23,23 +23,23 @@ public class Validator_SignIn
   {
     requiredKeys = new HashMap<>();
 
-    requiredKeys.put(Field.LOGIN, FieldValueType.STR);
-    requiredKeys.put(Field.PASSWORD, FieldValueType.STR);
+    requiredKeys.put(CField.LOGIN, CFieldValueType.STR);
+    requiredKeys.put(CField.PASSWORD, CFieldValueType.STR);
   }
 
-  public static Status validate(String body)
+  public static CStatus validate(String body)
   {
     /*
      * checking for INVALID_REQUEST
      */
 
     if (body == null || !ValidateTools.isValidJSONObject(body))
-      return Status.INVALID_REQUEST;
+      return CStatus.INVALID_REQUEST;
 
     JSONObject jobj = new JSONObject(body);
 
     if (!ValidateTools.isIdenticalKeys(requiredKeys.keySet(), jobj.keySet()))
-      return Status.INVALID_REQUEST;
+      return CStatus.INVALID_REQUEST;
 
 
 
@@ -48,21 +48,21 @@ public class Validator_SignIn
      */
 
     if (!ValidateTools.isValidFieldTypes(requiredKeys, jobj))
-      return Status.INVALID_FIELD_TYPE;
+      return CStatus.INVALID_FIELD_TYPE;
 
 
 
     /*
      * checking for INVALID_LOGIN
-     * --------------------------------------------
-     *  Field "login" can be "email" or "nickname",
-     *  so if login is neither a valid email
-     *  address nor a valid nickname, then throw an
-     *  error.
+     *\
+     * Field "login" can be "email" or "nickname",
+     * so if login is neither a valid email
+     * address nor a valid nickname, then throw an
+     * error.
      */
 
-    if (!ValidateTools.isValidNickname(jobj.getString(Field.LOGIN)) && !ValidateTools.isValidEmail(jobj.getString(Field.LOGIN)))
-      return Status.INVALID_LOGIN;
+    if (!ValidateTools.isValidNickname(jobj.getString(CField.LOGIN)) && !ValidateTools.isValidEmail(jobj.getString(CField.LOGIN)))
+      return CStatus.INVALID_LOGIN;
 
 
 
@@ -70,9 +70,9 @@ public class Validator_SignIn
      * checking for INVALID_PASSWORD
      */
 
-    if (!ValidateTools.isValidPassword(jobj.getString(Field.PASSWORD)))
-      return Status.INVALID_PASSWORD;
+    if (!ValidateTools.isValidPassword(jobj.getString(CField.PASSWORD)))
+      return CStatus.INVALID_PASSWORD;
 
-    return Status.OK;
+    return CStatus.OK;
   }
 }

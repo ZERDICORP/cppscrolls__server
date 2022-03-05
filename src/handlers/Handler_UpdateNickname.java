@@ -15,9 +15,10 @@ import zer.file.FType;
 
 import validators.Validator_UpdateNickname;
 
-import constants.Status;
-import constants.Field;
-import constants.Regex;
+import constants.CStatus;
+import constants.CField;
+import constants.CServer;
+import constants.CMark;
  
 import actions.Action_GetUserByNickname;
 import actions.Action_UpdateUserNicknameById;
@@ -28,20 +29,24 @@ import models.Model_User;
 
 @HTTPRoute
 (
-  pattern = "/user/nickname",
+  pattern = CServer.API_PREFIX + "/user/nickname",
   type = "PUT",
-  withAuthToken = true
+  marks = {
+		CMark.WITH_AUTH_TOKEN
+	}
 )
 public class Handler_UpdateNickname extends HTTPHandler
 {
 	@Override
 	public void handle(HTTPRequest req, HTTPResponse res)
 	{
-		JSONObject tokenPayload = new JSONObject(req.get("Authentication-Token-Payload"));
+		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 
-		res.set("Content-Type", FType.JSON.mime());
+		res.headers().put("Content-Type", FType.JSON.mime());
     
     JSONObject resBody = new JSONObject();
+
+		String bodyAsString = req.bodyAsString();
 
 
 
@@ -49,16 +54,16 @@ public class Handler_UpdateNickname extends HTTPHandler
      * request body validation
      */
 
-    Status status = Validator_UpdateNickname.validate(req.get("Body"));
-    if (status != Status.OK)
+    CStatus status = Validator_UpdateNickname.validate(bodyAsString);
+    if (status != CStatus.OK)
     {
-      res.setBody(resBody
-        .put(Field.STATUS, status.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, status.ordinal())
         .toString());
-      return;   
+      return;
     }
 
-    JSONObject reqBody = new JSONObject(req.get("Body"));
+    JSONObject reqBody = new JSONObject(bodyAsString);
 
 
 
@@ -66,22 +71,22 @@ public class Handler_UpdateNickname extends HTTPHandler
      * checking for NICKNAME_ALREADY_IN_USE
      */
 
-    if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserByNickname(reqBody.getString(Field.NICKNAME))).size() > 0)
+    if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserByNickname(reqBody.getString(CField.NICKNAME))).size() > 0)
     {
-      res.setBody(resBody
-        .put(Field.STATUS, Status.NICKNAME_ALREADY_IN_USE.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, CStatus.NICKNAME_ALREADY_IN_USE.ordinal())
         .toString());
       return;
     }
 
 
 
-		SQLInjector.inject(new Action_UpdateUserNicknameById(tokenPayload.getString(Field.UID), reqBody.getString(Field.NICKNAME)));
+		SQLInjector.inject(new Action_UpdateUserNicknameById(tokenPayload.getString(CField.UID), reqBody.getString(CField.NICKNAME)));
 
 
 
-		res.setBody(resBody
-      .put(Field.STATUS, Status.OK.ordinal())
+		res.body(resBody
+      .put(CField.STATUS, CStatus.OK.ordinal())
       .toString());
 	}
 }
