@@ -13,9 +13,8 @@ import java.lang.annotation.ElementType;
 @Target(ElementType.TYPE)
 public @interface HTTPRoute
 {
-  boolean withAuthToken() default false;
-
 	String type();
 	String pattern();
-	String[] extensions() default {};
+
+	String[] marks() default {};
 }
