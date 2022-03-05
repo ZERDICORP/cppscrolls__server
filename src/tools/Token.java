@@ -25,11 +25,16 @@ public class Token
       return null;
 
     String[] parts = token.split("\\.");
+		String payload;
 
-    String payload = new String(Base64.getDecoder().decode(parts[0]));
+		try
+		{
+			payload = new String(Base64.getDecoder().decode(parts[0]));
 
-    if (!parts[1].equals(Tools.sha256(payload + secret)))
-      return null;
+			if (!parts[1].equals(Tools.sha256(payload + secret)))
+				return null;
+		}
+		catch (Exception e) { return null; }
 
     return payload;
   }
