@@ -4,13 +4,30 @@ package zer.http;
 
 public class HTTPConfig
 {
-	protected static int port = 80;
-	protected static String ip = "127.0.0.1";
+	protected static int apiPrefixOffset;	
+	protected static int port;
+	protected static String ip;
+	protected static String apiPrefix;
 
-	public static void setPort(int p) { port = p; }
-	public static void setIp(String i) { ip = i; }
+	static
+	{
+		port = 8080;
+		ip = "127.0.0.1";
+		apiPrefix = "";
+		apiPrefixOffset = 0;
+	}
 
-	public static final int getPort() { return port; }
-	public static final String getIp() { return ip; }
-	public static final String getHost() { return ip + ":" + port; }
+	public static void port(int p) { port = p; }
+	public static void ip(String i) { ip = i; }
+	public static void apiPrefix(String ap)
+	{
+		apiPrefix = ap;
+		apiPrefixOffset = apiPrefix.split("/").length;
+	}
+	
+	public static final int apiPrefixOffset() { return apiPrefixOffset; }	
+	public static final int port() { return port; }
+	public static final String ip() { return ip; }
+	public static final String host() { return ip + ":" + port; }
+	public static final String apiPrefix() { return apiPrefix; }
 }

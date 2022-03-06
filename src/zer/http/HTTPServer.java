@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 
 
 
-class SocketProcessor implements Runnable
+class SocketProcessor extends HTTPConfig implements Runnable
 {
 	private Socket socket;
 	private DataInputStream inStream;
@@ -119,7 +119,7 @@ class SocketProcessor implements Runnable
 				HTTPRoute ann = clazz.getAnnotation(HTTPRoute.class);
 				if
 				(
-					req.path().matches("^" + ann.pattern() + "$") &&
+					req.path().matches("^" + apiPrefix + ann.pattern() + "$") &&
 					ann.type().toLowerCase().equals(req.type().toLowerCase())
 				)
 				{
