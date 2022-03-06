@@ -19,9 +19,9 @@ import zer.file.FType;
 
 import validators.Validator_UpdateNickname;
 
-import constants.CServer;
 import constants.CStatus;
 import constants.CField;
+import constants.CServer;
 import constants.CMark;
  
 import actions.Action_GetUserById;
@@ -35,11 +35,9 @@ import tools.Tools;
 
 @HTTPRoute
 (
-  pattern = CServer.API_PREFIX + "/user/image",
+  pattern = "/user/image",
   type = "PUT",
-  marks = {
-		CMark.WITH_AUTH_TOKEN
-	}
+  marks = { CMark.WITH_AUTH_TOKEN	}
 )
 public class Handler_UpdateImage extends HTTPHandler
 {

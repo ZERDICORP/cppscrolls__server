@@ -17,7 +17,6 @@ import validators.Validator_UpdatePassword;
 
 import constants.CStatus;
 import constants.CField;
-import constants.CServer;
 import constants.CMark;
  
 import actions.Action_GetUserById;
@@ -31,11 +30,9 @@ import tools.Tools;
 
 @HTTPRoute
 (
-  pattern = CServer.API_PREFIX + "/user/password",
+  pattern = "/user/password",
   type = "PUT",
-  marks = {
-		CMark.WITH_AUTH_TOKEN
-	}
+  marks = {	CMark.WITH_AUTH_TOKEN	}
 )
 public class Handler_UpdatePassword extends HTTPHandler
 {

@@ -12,6 +12,7 @@ public interface CField
 	String BIO = "bio";
   String EMAIL = "email";
   String PASSWORD = "password";
+	String PASSWORD_HASH = "password_hash";
 	String NEW_PASSWORD = "new_password";
   String ID = "id";
 	String UID = "uid";

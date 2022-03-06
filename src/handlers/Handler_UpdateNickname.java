@@ -17,7 +17,6 @@ import validators.Validator_UpdateNickname;
 
 import constants.CStatus;
 import constants.CField;
-import constants.CServer;
 import constants.CMark;
  
 import actions.Action_GetUserByNickname;
@@ -29,11 +28,9 @@ import models.Model_User;
 
 @HTTPRoute
 (
-  pattern = CServer.API_PREFIX + "/user/nickname",
+  pattern = "/user/nickname",
   type = "PUT",
-  marks = {
-		CMark.WITH_AUTH_TOKEN
-	}
+  marks = { CMark.WITH_AUTH_TOKEN	}
 )
 public class Handler_UpdateNickname extends HTTPHandler
 {

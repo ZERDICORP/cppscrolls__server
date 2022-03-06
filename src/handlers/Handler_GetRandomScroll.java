@@ -13,9 +13,10 @@ import zer.http.HTTPResponse;
 import zer.sql.SQLInjector;
 import zer.file.FType;
  
-import constants.Status;
-import constants.Field;
-import constants.Regex;
+import constants.CStatus;
+import constants.CField;
+import constants.CRegex;
+import constants.CMark;
  
 import actions.Action_GetRandomScroll;
  
@@ -25,19 +26,21 @@ import models.Model_Scroll;
  
 @HTTPRoute
 (
-  pattern = "/" + Regex.SIDE + "/scroll",
+  pattern = "/" + CRegex.SIDE + "/scroll",
   type = "GET",
-  withAuthToken = true
+  marks = { CMark.WITH_AUTH_TOKEN }
 )
 public class Handler_GetRandomScroll extends HTTPHandler
 {
   @Override
   public void handle(HTTPRequest req, HTTPResponse res)
   {   
-    res.set("Content-Type", FType.JSON.mime());
+    res.headers().put("Content-Type", FType.JSON.mime());
    
     JSONObject resBody = new JSONObject();
- 	
+
+
+
 		/*\
 		 * We will not check if the scrolls
 		 * array is empty, as there will always
@@ -46,9 +49,11 @@ public class Handler_GetRandomScroll extends HTTPHandler
 
     ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetRandomScroll(Integer.parseInt(req.path(0))));
 
-    res.setBody(resBody
-      .put(Field.STATUS, Status.OK.ordinal())
-      .put(Field.SCROLL_ID, scrolls.get(0).id)
+
+
+    res.body(resBody
+      .put(CField.STATUS, CStatus.OK.ordinal())
+      .put(CField.SCROLL_ID, scrolls.get(0).id)
       .toString());
   }
 }

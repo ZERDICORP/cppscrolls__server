@@ -30,7 +30,7 @@ import tools.Tools;
 
 @HTTPRoute
 (
-  pattern = CServer.API_PREFIX + "/signin",
+  pattern = "/signin",
   type = "POST"
 )
 public class Handler_SignIn extends HTTPHandler

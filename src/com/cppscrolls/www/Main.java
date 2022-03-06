@@ -18,6 +18,10 @@ import handlers.Handler_UpdateNickname;
 import handlers.Handler_UpdateBio;
 import handlers.Handler_UpdatePassword;
 import handlers.Handler_UpdateImage;
+import handlers.Handler_GetUser;
+import handlers.Handler_DeleteAccount;
+import handlers.Handler_Rating;
+import handlers.Handler_GetRandomScroll;
 
 
 
@@ -35,7 +39,7 @@ public class Main
 
 
 
-    HTTPConfig.setPort(CServer.PORT);
+		HTTPConfig.apiPrefix(CServer.API_PREFIX);
 
     HTTPServer server = new HTTPServer();
 
@@ -48,8 +52,12 @@ public class Main
 		server.addHandler(new Handler_UpdateBio());
 		server.addHandler(new Handler_UpdatePassword());
 		server.addHandler(new Handler_UpdateImage());
+		server.addHandler(new Handler_GetUser());
+		server.addHandler(new Handler_DeleteAccount());
+		server.addHandler(new Handler_Rating());
+		server.addHandler(new Handler_GetRandomScroll());
 
-    System.out.println("Server started listening on port " + HTTPConfig.getPort() + "..");
+    System.out.println("Server started listening on port " + HTTPConfig.port() + "..");
   
     server.run();
   }

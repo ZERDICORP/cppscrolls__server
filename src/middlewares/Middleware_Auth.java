@@ -3,6 +3,7 @@ package middlewares;
 
 
 import java.util.Arrays;
+import java.util.ArrayList;
 
 import org.json.JSONObject;
 
@@ -61,17 +62,27 @@ public class Middleware_Auth extends HTTPMiddleware
      * checking for ACCOUNT_REMOVED
      */
   
-    if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(tokenPayload.getString(CField.UID))).size() == 0)
+
+		ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(tokenPayload.getString(CField.UID)));	
+    if (users.size() == 0)
     {   
       res.body(resBody
         .put(CField.STATUS, CStatus.ACCOUNT_REMOVED.ordinal())
         .toString());
       return false;
     }
+	
+		Model_User user = users.get(0);
 
 
 
     req.headers().put("Authentication-Token-Payload", payload);
+
+
+	
+		if (Arrays.stream(ann.marks()).anyMatch(s -> s.equals(CMark.WITH_PRELOADED_USER)))
+			req.headers().put("Preloaded-User",
+				new JSONObject(user, new String[] { CField.NICKNAME, CField.PASSWORD_HASH, CField.BIO, CField.IMAGE, CField.SCORE, CField.SIDE }).toString());	
 
 
 

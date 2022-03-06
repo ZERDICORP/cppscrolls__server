@@ -13,9 +13,11 @@ import zer.http.HTTPResponse;
 import zer.sql.SQLInjector;
 import zer.file.FType;
  
-import constants.Status;
-import constants.Field;
-import constants.Regex;
+import constants.CStatus;
+import constants.CField;
+import constants.CRegex;
+import constants.CMark;
+import constants.CServer;
  
 import actions.Action_GetUserById;
  
@@ -25,47 +27,76 @@ import models.Model_User;
 
 @HTTPRoute
 (
-  pattern = "/user/" + Regex.UUID,
+  pattern = "/user/" + CRegex.UUID,
   type = "GET",
-  withAuthToken = true
+  marks = {
+		CMark.WITH_AUTH_TOKEN,
+		CMark.WITH_PRELOADED_USER
+	}
 )
 public class Handler_GetUser extends HTTPHandler
 {
 	@Override
 	public void handle(HTTPRequest req, HTTPResponse res)
 	{
-		res.set("Content-Type", FType.JSON.mime());
+		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
+		JSONObject preloadedUser = new JSONObject(req.headers().get("Preloaded-User"));
+
+		res.headers().put("Content-Type", FType.JSON.mime());
     
     JSONObject resBody = new JSONObject();
+	
+
+
+		/*\
+		 * If the incoming id is equal to the id
+		 * from the token, then we can not make a
+		 * request to the database, but simply use
+		 * the data that we received in the middleware.
+		 */
+
+		if (req.path(1).equals(tokenPayload.getString(CField.UID))) 
+		{
+			/*\
+			 * Removing the password_hash field because
+			 * it's not needed.
+			 */
+
+			preloadedUser.remove(CField.PASSWORD_HASH);
+
+			res.body(resBody
+				.put(CField.STATUS, CStatus.OK.ordinal())
+				.put(CField.USER, preloadedUser)
+				.toString());
+			return;
+		}
+
+
+
+		/*
+     * checking for USER_DOES_NOT_EXIST
+     */
 
 		ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(req.path(1)));
     if (users.size() == 0)
     {   
-      res.setBody(resBody
-        .put(Field.STATUS, Status.USER_DOES_NOT_EXIST.ordinal())
+      res.body(resBody
+        .put(CField.STATUS, CStatus.USER_DOES_NOT_EXIST.ordinal())
         .toString());
       return;
     }   
+		
+		Model_User user = users.get(0);
 
 
 
-		/*  
-     * checking for USER_NOT_CONFIRMED
-     */
-  
-    if (users.get(0).confirmed == 0)
-    {   
-      res.setBody(resBody
-        .put(Field.STATUS, Status.USER_NOT_CONFIRMED.ordinal())
-        .toString());
-      return;
-    }
+		JSONObject userJSON = new JSONObject(user, new String[] { CField.NICKNAME, CField.BIO, CField.IMAGE, CField.SCORE, CField.SIDE });
 
-		JSONObject user = new JSONObject(users.get(0), new String[] {"nickname", "image", "score", "side"});
 
-		res.setBody(resBody
-      .put(Field.STATUS, Status.OK.ordinal())
-      .put(Field.USER, user)
+
+		res.body(resBody
+      .put(CField.STATUS, CStatus.OK.ordinal())
+      .put(CField.USER, userJSON)
       .toString());
 	}
 }

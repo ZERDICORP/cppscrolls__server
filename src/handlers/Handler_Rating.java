@@ -13,9 +13,10 @@ import zer.http.HTTPResponse;
 import zer.sql.SQLInjector;
 import zer.file.FType;
 
-import constants.Status;
-import constants.Field;
-import constants.Side;
+import constants.CStatus;
+import constants.CField;
+import constants.CSide;
+import constants.CMark;
 
 import actions.Action_GetBestUsers;
 import actions.Action_GetSides;
@@ -29,14 +30,14 @@ import models.Model_Side;
 (
   pattern = "/rating",
   type = "GET",
-  withAuthToken = true
+  marks = {	CMark.WITH_AUTH_TOKEN }
 )
 public class Handler_Rating extends HTTPHandler
 {
   @Override
   public void handle(HTTPRequest req, HTTPResponse res)
   {
-    res.set("Content-Type", FType.JSON.mime());
+    res.headers().put("Content-Type", FType.JSON.mime());
     
     JSONObject resBody = new JSONObject();
 
@@ -60,8 +61,8 @@ public class Handler_Rating extends HTTPHandler
 
     ArrayList<Model_Side> sides = SQLInjector.<Model_Side>inject(Model_Side.class, new Action_GetSides());
 
-    JSONObject darkSide = new JSONObject(sides.get(Side.DARK.ordinal()), new String[] { Field.SCORE });
-    JSONObject brightSide = new JSONObject(sides.get(Side.BRIGHT.ordinal()), new String[] { Field.SCORE });
+    JSONObject darkSide = new JSONObject(sides.get(CSide.DARK.ordinal()), new String[] { CField.SCORE });
+    JSONObject brightSide = new JSONObject(sides.get(CSide.BRIGHT.ordinal()), new String[] { CField.SCORE });
 
 
 
@@ -75,21 +76,21 @@ public class Handler_Rating extends HTTPHandler
 
     ArrayList<Model_User> bestUsers = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetBestUsers());
 
-    Model_User bestDarkUser = bestUsers.get(Side.DARK.ordinal());
-    Model_User bestBrightUser = bestUsers.get(Side.BRIGHT.ordinal());
+    Model_User bestDarkUser = bestUsers.get(CSide.DARK.ordinal());
+    Model_User bestBrightUser = bestUsers.get(CSide.BRIGHT.ordinal());
 
-    if (!bestDarkUser.id.equals(String.valueOf(Side.DARK.ordinal())))
-      darkSide.put(Field.BEST_USER, new JSONObject(bestDarkUser, new String[] { Field.ID, Field.IMAGE }));
+    if (!bestDarkUser.id.equals(String.valueOf(CSide.DARK.ordinal())))
+      darkSide.put(CField.BEST_USER, new JSONObject(bestDarkUser, new String[] { CField.ID, CField.IMAGE }));
 
-    if (!bestBrightUser.id.equals(String.valueOf(Side.BRIGHT.ordinal())))
-      brightSide.put(Field.BEST_USER, new JSONObject(bestBrightUser, new String[] { Field.ID, Field.IMAGE }));
+    if (!bestBrightUser.id.equals(String.valueOf(CSide.BRIGHT.ordinal())))
+      brightSide.put(CField.BEST_USER, new JSONObject(bestBrightUser, new String[] { CField.ID, CField.IMAGE }));
 
 
 
-    res.setBody(resBody
-      .put(Field.STATUS, Status.OK.ordinal())
-      .put(Field.DARK_SIDE, darkSide)
-      .put(Field.BRIGHT_SIDE, brightSide)
+    res.body(resBody
+      .put(CField.STATUS, CStatus.OK.ordinal())
+      .put(CField.DARK_SIDE, darkSide)
+      .put(CField.BRIGHT_SIDE, brightSide)
       .toString());
   }
 }

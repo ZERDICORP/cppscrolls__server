@@ -30,7 +30,7 @@ import tools.Token;
 
 @HTTPRoute
 (
-  pattern = CServer.API_PREFIX + "/user/confirm",
+  pattern = "/user/confirm",
   type = "POST"
 )
 public class Handler_Confirm extends HTTPHandler

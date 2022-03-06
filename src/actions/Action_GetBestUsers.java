@@ -4,7 +4,7 @@ package actions;
  
 import zer.sql.SQLAction;
 
-import constants.Side;
+import constants.CSide;
 
 
 
@@ -17,7 +17,7 @@ public class Action_GetBestUsers extends SQLAction
 
   public Action_GetBestUsers()
   {
-    put(Side.DARK.ordinal(), 2);
-    put(Side.BRIGHT.ordinal(), 2);
+    put(CSide.DARK.ordinal(), 2);
+    put(CSide.BRIGHT.ordinal(), 2);
   }
 }

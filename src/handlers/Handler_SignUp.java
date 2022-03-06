@@ -36,7 +36,7 @@ import tools.Token;
 
 @HTTPRoute
 (
-  pattern = CServer.API_PREFIX + "/signup",
+  pattern = "/signup",
   type = "POST"
 )
 public class Handler_SignUp extends HTTPHandler
