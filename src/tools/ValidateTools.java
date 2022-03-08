@@ -21,7 +21,9 @@ public class ValidateTools
   public static boolean isValidPassword(String test) { return test.matches(CRegex.PASSWORD); }
   public static boolean isValidEmail(String test) { return test.matches(CRegex.EMAIL); }
   public static boolean isValidNickname(String test) { return test.matches(CRegex.NICKNAME); }
-  
+ 	public static boolean isValidTitle(String test) { return test.matches(CRegex.TITLE); }
+	public static boolean isValidId(String test) { return test.matches("^" + CRegex.UUID + "$"); }
+
   public static boolean isValidFieldTypes(Map<String, String> requiredKeys, JSONObject jobj)
   {
     try
@@ -31,6 +33,14 @@ public class ValidateTools
         {
           case CFieldValueType.STR: jobj.getString(entry.getKey()); break;
           case CFieldValueType.INT: jobj.getInt(entry.getKey()); break;
+					case CFieldValueType.ARR_OF_STR:
+					{
+						JSONArray jarr = jobj.getJSONArray(entry.getKey());
+						for (int i = 0; i < jarr.length(); ++i)
+							jarr.getString(i);
+						
+						break;
+					}
         } 
     }
     catch (JSONException e) { return false; }

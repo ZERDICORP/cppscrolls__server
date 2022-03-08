@@ -57,16 +57,17 @@ public class Handler_GetUser extends HTTPHandler
 
 		if (req.path(1).equals(tokenPayload.getString(CField.UID))) 
 		{
-			/*\
-			 * Removing the password_hash field because
-			 * it's not needed.
-			 */
-
-			preloadedUser.remove(CField.PASSWORD_HASH);
+			JSONObject userJSON = new JSONObject(preloadedUser, new String[] {
+				CField.NICKNAME,
+				CField.BIO,
+				CField.IMAGE,
+				CField.SCORE,
+				CField.SIDE
+			});
 
 			res.body(resBody
 				.put(CField.STATUS, CStatus.OK.ordinal())
-				.put(CField.USER, preloadedUser)
+				.put(CField.USER, userJSON)
 				.toString());
 			return;
 		}
@@ -90,7 +91,13 @@ public class Handler_GetUser extends HTTPHandler
 
 
 
-		JSONObject userJSON = new JSONObject(user, new String[] { CField.NICKNAME, CField.BIO, CField.IMAGE, CField.SCORE, CField.SIDE });
+		JSONObject userJSON = new JSONObject(user, new String[] {
+			CField.NICKNAME,
+			CField.BIO,
+			CField.IMAGE,
+			CField.SCORE,
+			CField.SIDE
+		});
 
 
 

@@ -9,6 +9,7 @@ public interface CField
   String SCORE = "score";
   String TOKEN = "token";
   String NICKNAME = "nickname";
+	String NAME = "NAME";
 	String BIO = "bio";
   String EMAIL = "email";
   String PASSWORD = "password";
@@ -24,4 +25,10 @@ public interface CField
   String DARK_SIDE = "dark_side";
 	String SCROLL = "scroll";
 	String SCROLL_ID = "scroll_id";
+	String TOPICS = "topics";
+	String TITLE = "title";
+	String TEST_FUNC = "test_func";
+	String SCRIPT_FUNC = "script_func";
+	String DESCRIPTION = "description";
+	String SCROLL_CREATION_TIME = "scroll_creation_time";
 }

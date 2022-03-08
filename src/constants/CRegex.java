@@ -9,4 +9,5 @@ public interface CRegex
 	String EMAIL = "^[.a-zA-Z0-9_-]{1,64}@[a.-zA-Z0-9_-]{1,63}\\.[a.-zA-Z0-9_-]{1,192}$";
 	String NICKNAME = "^[a-zA-Z0-9_]{1,255}$";
 	String PASSWORD = "^.{6,}$";
+	String TITLE = "^.{1,500}$";
 }

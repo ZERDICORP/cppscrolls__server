@@ -6,6 +6,9 @@ public interface CServer
 {
   int PORT = 8080;
 
+	int POINTS_FOR_SCROLL_CREATING = 5;
+	int SCROLL_CREATION_TIMEOUT = 24;
+
 	String API_PREFIX = "/api";
 
 	String IMAGES_FOLDER_PATH = "images/";

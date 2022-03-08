@@ -4,17 +4,21 @@ package tools;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 
 
 
 public class Tools
 {
-	public static boolean isValidImage(byte[] bytes)
+	public static long hoursPassed(String fromDate)
 	{
-		return true; 
-	}	
+		long m1 = Timestamp.valueOf(fromDate).getTime();
+		long m2 = new Timestamp(System.currentTimeMillis()).getTime();
+		long diff = m2 - m1;
+
+		return diff / (60 * 60 * 1000);
+	}
 
   public static String sha256(String data) 
   {

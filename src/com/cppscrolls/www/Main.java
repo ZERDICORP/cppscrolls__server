@@ -22,6 +22,9 @@ import handlers.Handler_GetUser;
 import handlers.Handler_DeleteAccount;
 import handlers.Handler_Rating;
 import handlers.Handler_GetRandomScroll;
+import handlers.Handler_CreateScroll;
+import handlers.Handler_UpdateScroll;
+import handlers.Handler_DeleteScroll;
 
 
 
@@ -56,6 +59,9 @@ public class Main
 		server.addHandler(new Handler_DeleteAccount());
 		server.addHandler(new Handler_Rating());
 		server.addHandler(new Handler_GetRandomScroll());
+		server.addHandler(new Handler_CreateScroll());
+		server.addHandler(new Handler_UpdateScroll());
+		server.addHandler(new Handler_DeleteScroll());
 
     System.out.println("Server started listening on port " + HTTPConfig.port() + "..");
   

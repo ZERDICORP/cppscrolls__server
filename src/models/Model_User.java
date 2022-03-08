@@ -1,6 +1,12 @@
 package models;
 
+
+
+import java.sql.Timestamp;
+
 import zer.sql.SQLModel;
+
+
 
 public class Model_User extends SQLModel
 {
@@ -15,4 +21,6 @@ public class Model_User extends SQLModel
   public int side;
 
   public byte confirmed;
+
+	public Timestamp scroll_creation_time;
 }
