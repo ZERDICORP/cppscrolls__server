@@ -30,10 +30,8 @@ import validators.Validator_UpdateScroll;
 import actions.Action_GetScrollById;
 import actions.Action_UpdateScrollById;
 import actions.Action_AddTopics;
-import actions.Action_DeleteScroll_TopicByScrollAndTopicId;
 import actions.Action_DeleteScroll_TopicByScrollId;
 import actions.Action_AddScroll_Topic;
-import actions.Action_GetTopicsByName;
 
 import models.Model_Scroll;
 import models.Model_Topic;
@@ -85,19 +83,29 @@ public class Handler_UpdateScroll extends HTTPHandler
 
 
 
-		/*
-		 * checking for SCROLL_DOES_NOT_EXIST
+		/*\
+		 * Even if there is no scroll with the specified
+		 * id, there will be a one element in the array
+		 * but its fields will be NULL, so we can only
+		 * know if the scroll was found by checking if
+		 * the id of the scroll is not NULL.
 		 */
 
-		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollById(reqBody.getString(CField.SCROLL_ID)));
-		if (scrolls.size() == 0 || !scrolls.get(0).author_id.equals(tokenPayload.getString(CField.UID)))
+		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollById(
+			reqBody.getString(CField.SCROLL_ID),
+			tokenPayload.getString(CField.UID)
+		));
+
+		if (scrolls.get(0).id == null || !scrolls.get(0).author_id.equals(tokenPayload.getString(CField.UID)))
 		{
 			res.body(resBody
         .put(CField.STATUS, CStatus.SCROLL_DOES_NOT_EXIST.ordinal())
         .toString());
       return;
 		}
-	
+
+
+
 		SQLInjector.inject(new Action_UpdateScrollById(
 			reqBody.getString(CField.SCROLL_ID),
 			reqBody.getString(CField.TITLE),
@@ -131,21 +139,11 @@ public class Handler_UpdateScroll extends HTTPHandler
 				);
 			
 			SQLInjector.inject(action_addTopics);
+			
 
 
+			SQLInjector.inject(new Action_DeleteScroll_TopicByScrollId(reqBody.getString(CField.SCROLL_ID)));
 
-			/*\
-			 * Then we find all the topics by the names
-			 * contained in the "topics" array. I'm doing
-			 * this because the topic IDs are needed.
-			 */
-
-			Action_GetTopicsByName action_getTopicsByName = new Action_GetTopicsByName(topics.length());
-			for (int i = 0; i < topics.length(); ++i)
-				action_getTopicsByName.add(topics.getString(i));
-
-			ArrayList<Model_Topic> findedTopics = SQLInjector.<Model_Topic>inject(Model_Topic.class, action_getTopicsByName);	
-		
 
 
 			/*\
@@ -154,40 +152,17 @@ public class Handler_UpdateScroll extends HTTPHandler
 			 * exists will be ignored).
 			 */
 
-			Action_AddScroll_Topic action_addScroll_topic = new Action_AddScroll_Topic(findedTopics.size());
-			for (Model_Topic topic : findedTopics)
-				action_addScroll_topic.add(
-					reqBody.getString(CField.SCROLL_ID),
-					topic.id
-				);
+			Action_AddScroll_Topic action_addScroll_topic = new Action_AddScroll_Topic(
+				reqBody.getString(CField.SCROLL_ID),
+				preloadedUser.getInt(CField.SIDE),
+				topics.length()
+			);
+
+			for (int i = 0; i < topics.length(); ++i)
+				action_addScroll_topic.add(topics.getString(i));
 
 			SQLInjector.inject(action_addScroll_topic);
-
-
-
-			/*\
-			 * We also need to remove all those relations
-			 * that contain a topic_id that is not in
-			 * "findedTopics" array.
-			 */
-
-			Action_DeleteScroll_TopicByScrollAndTopicId action_deleteScroll_topicByScrollAndTopicId = new Action_DeleteScroll_TopicByScrollAndTopicId(findedTopics.size());
-			for (Model_Topic topic : findedTopics)
-				action_deleteScroll_topicByScrollAndTopicId.add(
-					reqBody.getString(CField.SCROLL_ID),
-					topic.id
-				);
-
-			SQLInjector.inject(action_deleteScroll_topicByScrollAndTopicId);
 		}
-		else
-			/*
-			 * If the array of topics is empty, then we
-			 * need to delete all relations by the id of
-			 * the current scroll.
-			 */
-
-			SQLInjector.inject(new Action_DeleteScroll_TopicByScrollId(reqBody.getString(CField.SCROLL_ID)));
 
 
 

@@ -30,7 +30,7 @@ import actions.Action_AddScroll;
 import actions.Action_UpdateUserScoreAndScrollCreationTimeById;
 import actions.Action_AddTopics;
 import actions.Action_AddScroll_Topic;
-import actions.Action_GetTopicsByName;
+import actions.Action_DeleteScroll_TopicByScrollId;
 
 import models.Model_Scroll;
 import models.Model_Topic;
@@ -133,57 +133,52 @@ public class Handler_CreateScroll extends HTTPHandler
 
 
 		/*\
-		 * If the request contains a non-empty array of
-		 * topics, then we must make the corresponding
-		 * entries in the database.
-		 */
-		
-		JSONArray topics = reqBody.getJSONArray(CField.TOPICS);
-		if (topics.length() > 0)
-		{
-			/*\
-			 * First, we add all topics to the database
-			 * (topics that already exist will be ignored).
-			 */
-
-			Action_AddTopics action_addTopics = new Action_AddTopics(topics.length());
-			for (int i = 0; i < topics.length(); ++i)
-				action_addTopics.add(
-					UUID.randomUUID().toString(),
-					topics.getString(i),
-					preloadedUser.getInt(CField.SIDE)
-				);
-			
-			SQLInjector.inject(action_addTopics);
-
-
-
-			/*\
-			 * Then we find all the topics by the names
-			 * contained in the "topics" array. I'm doing
-			 * this because the topic IDs are needed.
-			 */
-
-			Action_GetTopicsByName action_getTopicsByName = new Action_GetTopicsByName(topics.length());
-			for (int i = 0; i < topics.length(); ++i)
-				action_getTopicsByName.add(topics.getString(i));
-
-			ArrayList<Model_Topic> findedTopics = SQLInjector.<Model_Topic>inject(Model_Topic.class, action_getTopicsByName);	
+     * If the request contains a non-empty array of
+     * topics, then we must make the corresponding
+     * entries in the database.
+     */
+   
+    JSONArray topics = reqBody.getJSONArray(CField.TOPICS);
+    if (topics.length() > 0)
+    {   
+      /*\ 
+       * First, we add all topics to the database
+       * (topics that already exist will be ignored).
+       */
+ 
+      Action_AddTopics action_addTopics = new Action_AddTopics(topics.length());
+      for (int i = 0; i < topics.length(); ++i)
+        action_addTopics.add(
+          UUID.randomUUID().toString(),
+          topics.getString(i),
+          preloadedUser.getInt(CField.SIDE)
+        );  
+   
+      SQLInjector.inject(action_addTopics);
+   
+ 
+ 
+      SQLInjector.inject(new Action_DeleteScroll_TopicByScrollId(reqBody.getString(CField.SCROLL_ID)));
 
 
 
-			/*\
-			 * At the end we add the relation of each
-			 * theme_id and the current scroll_id
-			 * (relation that already exists will be ignored).
-			 */
+      /*\
+       * Now we add the relation of each theme_id to
+       * the current scroll_id (relation that already
+       * exists will be ignored).
+       */
 
-			Action_AddScroll_Topic action_addScroll_topic = new Action_AddScroll_Topic(findedTopics.size());
-			for (Model_Topic topic : findedTopics)
-				action_addScroll_topic.add(scroll_id, topic.id);
+      Action_AddScroll_Topic action_addScroll_topic = new Action_AddScroll_Topic(
+        reqBody.getString(CField.SCROLL_ID),
+        preloadedUser.getInt(CField.UID),
+        topics.length()
+      );
 
-			SQLInjector.inject(action_addScroll_topic);
-		}
+      for (int i = 0; i < topics.length(); ++i)
+        action_addScroll_topic.add(topics.getString(i));
+
+      SQLInjector.inject(action_addScroll_topic);
+    }
 
 
 
