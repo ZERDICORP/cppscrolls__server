@@ -15,6 +15,13 @@ import java.util.ArrayList;
 
 public class SQLInjector extends SQLConfig
 {
+	public static int rowsUpdated()
+	{
+		try	{ return statement.getUpdateCount(); }
+		catch (SQLException e) { e.printStackTrace(); }
+		return -1;
+	}
+
 	private static void wakeup() throws SQLException
 	{
 		/*
@@ -22,7 +29,7 @@ public class SQLInjector extends SQLConfig
 		 */
 		statement.execute("SELECT 1");
 	}
-	
+
 	public static void inject(SQLAction action)
 	{
 		try
