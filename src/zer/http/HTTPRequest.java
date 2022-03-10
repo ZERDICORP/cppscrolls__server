@@ -17,6 +17,7 @@ public class HTTPRequest extends HTTPMessage
 	public String bodyAsString() { return new String(body, StandardCharsets.UTF_8); }
 	public String type() { return startLine[0]; }
 	public String path() { return startLine[1]; }
+	public int pathInt(int index) { return Integer.parseInt(path(index)); }
 	public String path(int index) { return splitPath.get(HTTPConfig.apiPrefixOffset() + index); }
 
 	public boolean parseHeaders(String plain)
