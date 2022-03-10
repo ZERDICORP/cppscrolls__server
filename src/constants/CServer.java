@@ -8,6 +8,8 @@ public interface CServer
 
 	int POINTS_FOR_SCROLL_CREATING = 5;
 	int SCROLL_CREATION_TIMEOUT = 24;
+	int TOPICS_PAGE_SIZE = 15;
+	int SCROLLS_PAGE_SIZE = 9;
 
 	String API_PREFIX = "/api";
 

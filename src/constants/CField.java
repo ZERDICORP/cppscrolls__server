@@ -31,4 +31,16 @@ public interface CField
 	String SCRIPT_FUNC = "script_func";
 	String DESCRIPTION = "description";
 	String SCROLL_CREATION_TIME = "scroll_creation_time";
+	String SUCCESSFUL_ATTEMPTS = "successful_attempts";
+	String UNSUCCESSFUL_ATTEMPTS = "unsuccessful_attempts";
+	String AUTHOR = "author";
+	String BAD_MARKS = "bad_marks";
+	String VIEWS = "views";
+	String BAD_MARK = "bad_mark";
+	String SOLUTION = "solution";
+	String SOLUTION_ID = "solution_id";
+	String SOLUTION_AUTHOR_IMAGE = "solution_author_image";
+	String AUTHOR_ID = "author_id";
+	String AUTHOR_IMAGE = "author_image";
+	String SCROLLS = "scrolls";
 }

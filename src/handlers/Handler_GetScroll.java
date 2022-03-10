@@ -3,8 +3,11 @@ package handlers;
 
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 	
 import org.json.JSONObject;
+import org.json.JSONArray;
 	
 import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
@@ -19,9 +22,16 @@ import constants.CRegex;
 import constants.CMark;
 import constants.CServer;
  
+import actions.Action_GetScrollById;
 import actions.Action_GetUserById;
+import actions.Action_GetTopicsByScrollId;
+import actions.Action_GetUniqueScrollVisitsByScrollId;
+import actions.Action_AddUniqueScrollVisit;
  
 import models.Model_Scroll;
+import models.Model_User;
+import models.Model_Topic;
+import models.Model_UniqueScrollVisit;
 
 
 
@@ -44,12 +54,12 @@ public class Handler_GetScroll extends HTTPHandler
 
 
 
-		/*
-		 * checking for SCROLL_DOES_NOT_EXIST
-		 */
+		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollById(
+			req.path(1),
+			tokenPayload.getString(CField.UID)
+		));
 
-		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollById(req.path(1)));
-		if (scrolls.size() == 0)
+		if (scrolls.get(0).id == null)
 		{
 			res.body(resBody
 				.put(CField.STATUS, CStatus.SCROLL_DOES_NOT_EXIST.ordinal())
@@ -61,13 +71,43 @@ public class Handler_GetScroll extends HTTPHandler
 
 
 
-		JSONObject scrollJSON = new JSONObject(scroll, new String[] { CField.NICKNAME, CField.BIO, CField.IMAGE, CField.SCORE, CField.SIDE });
+		if (scroll.visited == 0)
+		{
+			SQLInjector.inject(new Action_AddUniqueScrollVisit(scroll.id, tokenPayload.getString(CField.UID)));
+			scroll.views++;
+		}
+
+
+
+		JSONObject scrollJSON = new JSONObject(scroll, new String[] {
+			CField.TITLE,
+			CField.DESCRIPTION,
+			CField.SCRIPT_FUNC,
+			CField.SUCCESSFUL_ATTEMPTS,
+			CField.UNSUCCESSFUL_ATTEMPTS,
+			CField.AUTHOR_ID,
+			CField.AUTHOR_IMAGE,
+			CField.SOLUTION_ID,
+			CField.SOLUTION_AUTHOR_IMAGE,
+			CField.VIEWS,
+			CField.BAD_MARKS,
+			CField.BAD_MARK
+		});
+
+
+
+		List<String> topics = SQLInjector.<Model_Topic>inject(Model_Topic.class, new Action_GetTopicsByScrollId(scroll.id))
+			.stream()
+			.map(o -> o.name)
+			.collect(Collectors.toList());
+
+		scrollJSON.put(CField.TOPICS, new JSONArray(topics));
 
 
 
 		res.body(resBody
 			.put(CField.STATUS, CStatus.OK.ordinal())
-			.put(CField.USER, scrollJSON)
+			.put(CField.SCROLL, scrollJSON)
 			.toString());
 	}
 }
