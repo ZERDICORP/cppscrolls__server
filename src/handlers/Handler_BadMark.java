@@ -29,8 +29,6 @@ import validators.Validator_BadMark;
 
 import actions.Action_ToggleBadMark;
 
-import models.Model_UniqueScrollVisit;
-
 import tools.Tools;
 import tools.Token;
 
