@@ -31,10 +31,6 @@ public class Validator_CreateScroll
 
   public static CStatus validate(String body)
   {
-    /*
-     * checking for INVALID_REQUEST
-     */
-
     if (body == null || !ValidateTools.isValidJSONObject(body))
       return CStatus.INVALID_REQUEST;
 
@@ -43,25 +39,14 @@ public class Validator_CreateScroll
     if (!ValidateTools.isIdenticalKeys(requiredKeys.keySet(), jobj.keySet()))
       return CStatus.INVALID_REQUEST;
 
-
-
-    /*
-     * checking for INVALID_FIELD_TYPE
-     */
-
     if (!ValidateTools.isValidFieldTypes(requiredKeys, jobj))
       return CStatus.INVALID_FIELD_TYPE;
-
-
-
-    /*
-     * checking for INVALID_TITLE
-     */
 
     if (!ValidateTools.isValidTitle(jobj.getString(CField.TITLE)))
       return CStatus.INVALID_TITLE;
 
-
+		if (!ValidateTools.isValidTopics(jobj.getJSONArray(CField.TOPICS)))
+      return CStatus.INVALID_TOPICS;
 
     return CStatus.OK;
   }

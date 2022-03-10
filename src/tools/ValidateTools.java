@@ -24,6 +24,14 @@ public class ValidateTools
  	public static boolean isValidTitle(String test) { return test.matches(CRegex.TITLE); }
 	public static boolean isValidId(String test) { return test.matches("^" + CRegex.UUID + "$"); }
 
+	public static boolean isValidTopics(JSONArray topics)
+	{
+		for (int i = 0; i < topics.length(); ++i)
+			if (!topics.getString(i).matches("^" + CRegex.TOPIC + "$"))
+				return false;
+		return true;
+	}
+
   public static boolean isValidFieldTypes(Map<String, String> requiredKeys, JSONObject jobj)
   {
     try
