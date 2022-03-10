@@ -2,10 +2,12 @@ package com.cppscrolls.www;
 
 
 
+import java.io.IOException;
+
+import zer.mail.MAILConfig;
+import zer.sql.SQLConfig;
 import zer.http.HTTPConfig;
 import zer.http.HTTPServer;
-import zer.sql.SQLConfig;
-import zer.mail.MAILConfig;
 
 import constants.CServer;
 
@@ -25,6 +27,13 @@ import handlers.Handler_GetRandomScroll;
 import handlers.Handler_CreateScroll;
 import handlers.Handler_UpdateScroll;
 import handlers.Handler_DeleteScroll;
+import handlers.Handler_BadMark;
+import handlers.Handler_GetScroll;
+import handlers.Handler_GetTopics;
+import handlers.Handler_GetMatchedTopics;
+import handlers.Handler_GetScrollsByTopic;
+import handlers.Handler_GetUserScrolls;
+import handlers.Handler_GetHistory;
 
 
 
@@ -62,9 +71,22 @@ public class Main
 		server.addHandler(new Handler_CreateScroll());
 		server.addHandler(new Handler_UpdateScroll());
 		server.addHandler(new Handler_DeleteScroll());
-
-    System.out.println("Server started listening on port " + HTTPConfig.port() + "..");
-  
-    server.run();
+		server.addHandler(new Handler_BadMark());
+		server.addHandler(new Handler_GetScroll());
+		server.addHandler(new Handler_GetTopics());
+		server.addHandler(new Handler_GetMatchedTopics());
+		server.addHandler(new Handler_GetScrollsByTopic());
+		server.addHandler(new Handler_GetUserScrolls());
+		server.addHandler(new Handler_GetHistory());
+ 		
+		try
+		{
+			System.out.println("Server started listening on port " + HTTPConfig.port() + "..");
+			server.run();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
   }
 }
