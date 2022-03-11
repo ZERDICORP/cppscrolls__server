@@ -1,46 +1,42 @@
 package zer.exec;
 
+
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.IOException;
 
-class EXECTask extends Thread
+
+
+public class EXECTask
 {
-	private Process process;
-  private int timeOut;
-	private String command;
+	private static int timeOut;
 
-  public EXECTask(String command, int t) { this(command); this.timeOut = t; }
-	public EXECTask(String command) { this.command = command; }
-
-	@Override
-	public void run()
+	static
 	{
-		try
-		{
-			this.process = Runtime.getRuntime().exec(this.command);
-			this.process.waitFor();
-		}
-		catch (InterruptedException | IOException e) { e.printStackTrace(); }
+		timeOut = -1;
 	}
 
-	public Process exec()
+	public static EXECResult exec(String command, int t)
 	{
-		try
-		{
-			this.start();
-
-      if (this.timeOut == -1)
-        this.join();
-      else
-			  this.join(this.timeOut);
-		}
-		catch (InterruptedException e) { e.printStackTrace(); }
-
-		if (this.process.isAlive())
-		{
-			this.process.destroy();
-			return null;
-		}
-
-		return this.process;
+		timeOut = t;
+		return exec(command);
 	}
-}
+
+	public static EXECResult exec(String command)
+	{
+		long time = System.currentTimeMillis();
+
+		Process process = new EXECTaskProcessor(command, timeOut).exec();
+		
+		long timeDiff = System.currentTimeMillis() - time;
+
+		if (process == null)
+			return new EXECResult(EXECResultCode.ERROR, "too long.. (more than " + timeOut + " ms)");
+
+		if (process.exitValue() != 0)
+			return new EXECResult(EXECResultCode.ERROR, process.getErrorStream());
+
+		return new EXECResult(EXECResultCode.OK, process.getInputStream(), timeDiff);
+	}
+};
