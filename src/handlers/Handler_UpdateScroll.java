@@ -96,7 +96,7 @@ public class Handler_UpdateScroll extends HTTPHandler
 			tokenPayload.getString(CField.UID)
 		));
 
-		if (scrolls.get(0).id == null || !scrolls.get(0).author_id.equals(tokenPayload.getString(CField.UID)))
+		if (scrolls.size() == 0 || !scrolls.get(0).author_id.equals(tokenPayload.getString(CField.UID)))
 		{
 			res.body(resBody
         .put(CField.STATUS, CStatus.SCROLL_DOES_NOT_EXIST.ordinal())

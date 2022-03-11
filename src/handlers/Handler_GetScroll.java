@@ -56,7 +56,7 @@ public class Handler_GetScroll extends HTTPHandler
 			tokenPayload.getString(CField.UID)
 		));
 
-		if (scrolls.get(0).id == null)
+		if (scrolls.size() == 0)
 		{
 			res.body(resBody
 				.put(CField.STATUS, CStatus.SCROLL_DOES_NOT_EXIST.ordinal())
@@ -84,7 +84,6 @@ public class Handler_GetScroll extends HTTPHandler
 			CField.UNSUCCESSFUL_ATTEMPTS,
 			CField.AUTHOR_ID,
 			CField.AUTHOR_IMAGE,
-			CField.SOLUTION_ID,
 			CField.SOLUTION_AUTHOR_IMAGE,
 			CField.VIEWS,
 			CField.BAD_MARKS,

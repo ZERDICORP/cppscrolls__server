@@ -43,12 +43,8 @@ public class Handler_GetHistory extends HTTPHandler
 		
 		JSONObject resBody = new JSONObject();
 
-		System.out.println(new Action_GetHistory(
-			tokenPayload.getString(CField.UID),
-			CServer.SCROLLS_PAGE_SIZE,
-			CServer.SCROLLS_PAGE_SIZE * req.pathInt(2)
-		).query());
 
+	
 		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetHistory(
 			tokenPayload.getString(CField.UID),
 			CServer.SCROLLS_PAGE_SIZE,

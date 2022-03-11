@@ -12,7 +12,6 @@ public class Model_Scroll extends SQLModel
 	public String id;
 	public String author_id;
 	public String author_image;
-	public String solution_id;
 	public String solution_author_image;
 	public String title;
 
@@ -23,10 +22,9 @@ public class Model_Scroll extends SQLModel
 	public Integer side;
 	public Integer successful_attempts;
 	public Integer unsuccessful_attempts;
+	public Integer bad_mark;
+	public Integer visited;
 
 	public Long views;
 	public Long bad_marks;
-
-	public Integer bad_mark;
-	public Integer visited;
 }

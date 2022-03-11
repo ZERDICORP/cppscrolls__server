@@ -10,10 +10,15 @@ public interface CServer
 	int SCROLL_CREATION_TIMEOUT = 24;
 	int TOPICS_PAGE_SIZE = 15;
 	int SCROLLS_PAGE_SIZE = 9;
+	int EXEC_TIMEOUT = 1000;
+	int BEST_SOLUTION_TIME_DIFF = 5;
 
 	String API_PREFIX = "/api";
 
 	String IMAGES_FOLDER_PATH = "images/";
+	String SOLUTIONS_FOLDER_PATH = "solutions/";
+	String RESOURCES_FOLDER_PATH = "resources/";
+	String BASE_CPP_FILE_PATH = RESOURCES_FOLDER_PATH + "base.cpp";
 
   String SECRET = "sdjhjk23jk4j3jk4jk34";
 

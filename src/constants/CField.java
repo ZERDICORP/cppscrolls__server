@@ -29,6 +29,11 @@ public interface CField
 	String TITLE = "title";
 	String TEST_FUNC = "test_func";
 	String SCRIPT_FUNC = "script_func";
+	String SCRIPT = "script";
+	String ERROR = "error";
+	String OUTPUT = "output";
+	String TIME = "time";
+	String BEST_SOLUTION = "best_solution";
 	String DESCRIPTION = "description";
 	String SCROLL_CREATION_TIME = "scroll_creation_time";
 	String SUCCESSFUL_ATTEMPTS = "successful_attempts";

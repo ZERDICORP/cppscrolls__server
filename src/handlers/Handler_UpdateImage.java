@@ -67,8 +67,6 @@ public class Handler_UpdateImage extends HTTPHandler
   
     Model_User user = users.get(0);
 
-		String imageFileName = user.image;
-
 
 
 		/*
@@ -76,6 +74,7 @@ public class Handler_UpdateImage extends HTTPHandler
 		 * new image name and change image of the user
 		 */
 
+		String imageFileName = user.image;
 		if (imageFileName == null)
 		{
 			imageFileName = user.nickname + ".jpg";
