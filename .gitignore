@@ -1,2 +1,6 @@
 *.class
+
 src/images/*.jpg
+
+solutions/*
+!solutions/.gitkeep 
