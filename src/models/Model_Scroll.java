@@ -18,7 +18,8 @@ public class Model_Scroll extends SQLModel
 	public MariaDbClob description;
 	public MariaDbClob script_func;
 	public MariaDbClob test_func;
-
+	
+	public Integer has_solution;
 	public Integer side;
 	public Integer successful_attempts;
 	public Integer unsuccessful_attempts;

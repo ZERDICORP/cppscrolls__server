@@ -33,6 +33,7 @@ public interface CField
 	String ERROR = "error";
 	String OUTPUT = "output";
 	String TIME = "time";
+	String HAS_SOLUTION = "has_solution";
 	String BEST_SOLUTION = "best_solution";
 	String DESCRIPTION = "description";
 	String SCROLL_CREATION_TIME = "scroll_creation_time";

@@ -14,6 +14,7 @@ public class Action_GetScrollById extends SQLAction
 				+ "sc.*,"
 				+ "u1.id AS author_id,"
 				+ "u1.image AS author_image,"
+				+ "(CASE WHEN so.author_id IS NULL THEN 0 ELSE 1 END) as has_solution,"	
 				+ "u2.image AS solution_author_image,"
 				+ "COUNT(usv.scroll_id) as views,"
 				+ "COUNT(CASE WHEN usv.bad_mark = true THEN 1 END) as bad_marks,"
