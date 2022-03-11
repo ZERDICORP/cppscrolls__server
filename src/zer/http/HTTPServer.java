@@ -29,7 +29,7 @@ public class HTTPServer extends HTTPConfig
 		while (true)
 		{
 			Socket socket = serverSocket.accept();
-
+			
 			new Thread(new SocketProcessor(socket, handlers, middlewares)).start();
 		}
 	}

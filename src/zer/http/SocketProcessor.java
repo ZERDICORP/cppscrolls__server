@@ -157,6 +157,8 @@ class SocketProcessor extends HTTPConfig implements Runnable
 
 			outStream.write(res.make());
 			outStream.flush();
+
+			socket.close();
 		}
 		catch (IOException e)
 		{
