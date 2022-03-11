@@ -15,10 +15,11 @@ import zer.sql.SQLInjector;
 import zer.file.FType;
  
 import validators.Validator_DeleteAccount;
- 
+
+import configs.AppConfig;
+
 import constants.CStatus;
 import constants.CField;
-import constants.CServer;
 import constants.CMark;
  
 import actions.Action_DeleteUserById;
@@ -96,7 +97,7 @@ public class Handler_DeleteAccount extends HTTPHandler
 
 		if (preloadedUser.has(CField.IMAGE))
 		{
-			File userImageFile = new File(CServer.IMAGES_FOLDER_PATH + preloadedUser.getString(CField.IMAGE));
+			File userImageFile = new File(AppConfig.IMAGES_FOLDER_PATH + preloadedUser.getString(CField.IMAGE));
 			if (userImageFile.exists())
 				userImageFile.delete();
 		}

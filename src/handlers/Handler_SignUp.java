@@ -19,9 +19,10 @@ import zer.mail.MAILClient;
 
 import validators.Validator_SignUp;
 
+import configs.AppConfig;
+
 import constants.CStatus;
 import constants.CField;
-import constants.CServer;
 
 import actions.Action_GetUserByEmail;
 import actions.Action_GetUserByNickname;
@@ -112,7 +113,7 @@ public class Handler_SignUp extends HTTPHandler
      * creating confirmation token
      */
     
-    String token = Token.build(id, CServer.SECRET);
+    String token = Token.build(id, AppConfig.SECRET);
 
 
 

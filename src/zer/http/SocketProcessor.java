@@ -69,7 +69,7 @@ class SocketProcessor extends HTTPConfig implements Runnable
 
 		int headersSize = Tools.getHeadersSize(firstSegmentBuffer, firstSegmentSize);
 		
-		System.out.println(unEscapeString(new String(firstSegmentBuffer, 0, headersSize, StandardCharsets.UTF_8)));
+		// System.out.println(unEscapeString(new String(firstSegmentBuffer, 0, headersSize, StandardCharsets.UTF_8)));
 
 		HTTPRequest req = new HTTPRequest();
 		if (!req.parseHeaders(new String(firstSegmentBuffer, 0, headersSize, StandardCharsets.UTF_8)))

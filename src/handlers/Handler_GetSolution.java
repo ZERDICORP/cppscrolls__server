@@ -17,7 +17,7 @@ import zer.sql.SQLInjector;
 import constants.CStatus;
 import constants.CField;
 import constants.CRegex;
-import constants.CServer;
+import constants.Const;
 import constants.CMark;
 
 import actions.Action_GetSolutionByScrollId;

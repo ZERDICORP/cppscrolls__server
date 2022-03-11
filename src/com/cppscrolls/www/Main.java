@@ -9,7 +9,9 @@ import zer.sql.SQLConfig;
 import zer.http.HTTPConfig;
 import zer.http.HTTPServer;
 
-import constants.CServer;
+import tools.ConfigLoader;
+
+import configs.AppConfig;
 
 import middlewares.Middleware_Auth;
 
@@ -43,17 +45,21 @@ public class Main
 {
   public static void main(String[] args)
   {
-    MAILConfig.setSender(CServer.EMAIL_SENDER);
-    MAILConfig.setPassword(CServer.EMAIL_SENDER_PASSWORD);
+		ConfigLoader.load(AppConfig.class, "resources/app.cfg");
 
 
 
-		SQLConfig.auth(CServer.DATABASE_USER, CServer.DATABASE_PASSWORD);
-    SQLConfig.connect(CServer.SQL_DRIVER, CServer.SQL_CONNECTION_STRING);
+    MAILConfig.setSender(AppConfig.EMAIL_SENDER);
+    MAILConfig.setPassword(AppConfig.EMAIL_SENDER_PASSWORD);
 
 
 
-		HTTPConfig.apiPrefix(CServer.API_PREFIX);
+		SQLConfig.auth(AppConfig.DATABASE_USER, AppConfig.DATABASE_PASSWORD);
+    SQLConfig.connect(AppConfig.SQL_DRIVER, AppConfig.SQL_CONNECTION_STRING);
+
+
+
+		HTTPConfig.apiPrefix(AppConfig.API_PREFIX);
 
     HTTPServer server = new HTTPServer();
 

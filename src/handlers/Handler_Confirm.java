@@ -15,9 +15,10 @@ import zer.file.FType;
 
 import validators.Validator_Confirm;
 
+import configs.AppConfig;
+
 import constants.CStatus;
 import constants.CField;
-import constants.CServer;
 
 import actions.Action_GetUserById;
 import actions.Action_ConfirmUser;
@@ -68,7 +69,7 @@ public class Handler_Confirm extends HTTPHandler
      * The variable "payload" stores the user ID.
      */
 
-    String payload = Token.access(reqBody.getString(CField.TOKEN), CServer.SECRET);
+    String payload = Token.access(reqBody.getString(CField.TOKEN), AppConfig.SECRET);
     if (payload == null)
     {
       res.body(resBody

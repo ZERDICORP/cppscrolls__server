@@ -14,9 +14,10 @@ import zer.http.HTTPRoute;
 import zer.sql.SQLInjector;
 import zer.file.FType;
 
+import configs.AppConfig;
+
 import constants.CStatus;
 import constants.CField;
-import constants.CServer;
 import constants.CMark;
 
 import tools.Token;
@@ -45,7 +46,7 @@ public class Middleware_Auth extends HTTPMiddleware
      * checking for INVALID_TOKEN
      */
 
-    String payload = Token.access(req.headers().get("Authentication-Token"), CServer.SECRET);
+    String payload = Token.access(req.headers().get("Authentication-Token"), AppConfig.SECRET);
     if (payload == null)
     {
       res.body(resBody

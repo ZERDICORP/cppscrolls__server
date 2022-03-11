@@ -20,7 +20,7 @@ import constants.CStatus;
 import constants.CField;
 import constants.CRegex;
 import constants.CMark;
-import constants.CServer;
+import constants.Const;
  
 import actions.Action_GetTopicBySideAndName;
 import actions.Action_IncTopicRequestsById;
@@ -74,8 +74,8 @@ public class Handler_GetScrollsByTopic extends HTTPHandler
 		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollsByTopicId(
 			tokenPayload.getString(CField.UID),
 			topic.id,
-			CServer.SCROLLS_PAGE_SIZE,
-			CServer.SCROLLS_PAGE_SIZE * req.pathInt(3)
+			Const.SCROLLS_PAGE_SIZE,
+			Const.SCROLLS_PAGE_SIZE * req.pathInt(3)
 		));
 
 

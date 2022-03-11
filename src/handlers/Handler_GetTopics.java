@@ -20,7 +20,7 @@ import constants.CStatus;
 import constants.CField;
 import constants.CRegex;
 import constants.CMark;
-import constants.CServer;
+import constants.Const;
  
 import actions.Action_GetTopicsBySide;
  
@@ -49,8 +49,8 @@ public class Handler_GetTopics extends HTTPHandler
 
 		List<String> topics = SQLInjector.<Model_Topic>inject(Model_Topic.class, new Action_GetTopicsBySide(
 			req.pathInt(1),
-			CServer.TOPICS_PAGE_SIZE,
-			CServer.TOPICS_PAGE_SIZE * req.pathInt(2)
+			Const.TOPICS_PAGE_SIZE,
+			Const.TOPICS_PAGE_SIZE * req.pathInt(2)
 		))
 			.stream()
 			.map(o -> o.name)

@@ -18,7 +18,7 @@ import constants.CStatus;
 import constants.CField;
 import constants.CRegex;
 import constants.CMark;
-import constants.CServer;
+import constants.Const;
 
 import actions.Action_GetHistory;
  
@@ -47,8 +47,8 @@ public class Handler_GetHistory extends HTTPHandler
 	
 		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetHistory(
 			tokenPayload.getString(CField.UID),
-			CServer.SCROLLS_PAGE_SIZE,
-			CServer.SCROLLS_PAGE_SIZE * req.pathInt(2)
+			Const.SCROLLS_PAGE_SIZE,
+			Const.SCROLLS_PAGE_SIZE * req.pathInt(2)
 		));
 
 

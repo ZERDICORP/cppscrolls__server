@@ -19,9 +19,10 @@ import zer.file.FType;
 
 import validators.Validator_UpdateNickname;
 
+import configs.AppConfig;
+
 import constants.CStatus;
 import constants.CField;
-import constants.CServer;
 import constants.CMark;
  
 import actions.Action_GetUserById;
@@ -89,7 +90,7 @@ public class Handler_UpdateImage extends HTTPHandler
 
 		try
 		{
-			OutputStream os = new FileOutputStream(CServer.IMAGES_FOLDER_PATH + imageFileName);
+			OutputStream os = new FileOutputStream(AppConfig.IMAGES_FOLDER_PATH + imageFileName);
 			os.write(req.body());
 			os.close();
 		}

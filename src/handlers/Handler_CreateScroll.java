@@ -21,7 +21,7 @@ import zer.mail.MAILClient;
 
 import constants.CStatus;
 import constants.CField;
-import constants.CServer;
+import constants.Const;
 import constants.CMark;
 
 import validators.Validator_CreateScroll;
@@ -94,7 +94,7 @@ public class Handler_CreateScroll extends HTTPHandler
 		 */
 
 		 if (preloadedUser.has(CField.SCROLL_CREATION_TIME) &&
-		 	Tools.hoursPassed(preloadedUser.getString(CField.SCROLL_CREATION_TIME)) <= CServer.SCROLL_CREATION_TIMEOUT)
+		 	Tools.hoursPassed(preloadedUser.getString(CField.SCROLL_CREATION_TIME)) <= Const.SCROLL_CREATION_TIMEOUT)
 		 {
 		 	res.body(resBody
          .put(CField.STATUS, CStatus.SCROLL_CREATION_LIMIT.ordinal())
@@ -126,7 +126,7 @@ public class Handler_CreateScroll extends HTTPHandler
 
 		SQLInjector.inject(new Action_UpdateUserScoreAndScrollCreationTimeById(
 			tokenPayload.getString(CField.UID),
-			preloadedUser.getInt(CField.SCORE) + CServer.POINTS_FOR_SCROLL_CREATING,
+			preloadedUser.getInt(CField.SCORE) + Const.POINTS_FOR_SCROLL_CREATING,
 			new Timestamp(System.currentTimeMillis()).toString()
 		));
 

@@ -15,9 +15,10 @@ import zer.file.FType;
  
 import validators.Validator_SignIn;
  
+import configs.AppConfig;
+
 import constants.CStatus;
 import constants.CField;
-import constants.CServer;
  
 import actions.Action_GetUserByLoginAndPasswordHash;
  
@@ -102,7 +103,7 @@ public class Handler_SignIn extends HTTPHandler
     JSONObject payload = new JSONObject();
     payload.put(CField.UID, user.id);
     
-    String token = Token.build(payload.toString(), CServer.SECRET);
+    String token = Token.build(payload.toString(), AppConfig.SECRET);
 
 
 

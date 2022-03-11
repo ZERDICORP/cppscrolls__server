@@ -22,7 +22,7 @@ import zer.mail.MAILClient;
 
 import constants.CStatus;
 import constants.CField;
-import constants.CServer;
+import constants.Const;
 import constants.CMark;
 
 import validators.Validator_UpdateScroll;

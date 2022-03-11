@@ -24,9 +24,11 @@ import zer.exec.EXECTask;
 import zer.exec.EXECResult;
 import zer.exec.EXECResultCode;
 
+import configs.AppConfig;
+
 import constants.CStatus;
 import constants.CField;
-import constants.CServer;
+import constants.Const;
 import constants.CMark;
 
 import validators.Validator_SolveScroll;
@@ -103,8 +105,8 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 
-		String fileName = CServer.SOLUTIONS_FOLDER_PATH + preloadedUser.getString(CField.NICKNAME);
-		String base = FTool.readPlain(CServer.BASE_CPP_FILE_PATH);
+		String fileName = AppConfig.SOLUTIONS_FOLDER_PATH + preloadedUser.getString(CField.NICKNAME);
+		String base = FTool.readPlain(AppConfig.BASE_CPP_FILE_PATH);
 
 		try
 		{
@@ -131,7 +133,7 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 
-		EXECResult execResult = EXECTask.exec(fileName, CServer.EXEC_TIMEOUT);
+		EXECResult execResult = EXECTask.exec(fileName, Const.EXEC_TIMEOUT);
 		if (execResult.code() != EXECResultCode.OK)
 		{
 			res.body(resBody
@@ -148,7 +150,7 @@ public class Handler_SolveScroll extends HTTPHandler
 			reqBody.getString(CField.SCROLL_ID)
 		));
 		
-		boolean bestSolution = solutions.size() == 0 || solutions.get(0).time - execResult.time() >= CServer.BEST_SOLUTION_TIME_DIFF;
+		boolean bestSolution = solutions.size() == 0 || solutions.get(0).time - execResult.time() >= Const.BEST_SOLUTION_TIME_DIFF;
 
 		if (bestSolution)
 			SQLInjector.inject(new Action_AddSolution(

@@ -18,7 +18,7 @@ import constants.CStatus;
 import constants.CField;
 import constants.CRegex;
 import constants.CMark;
-import constants.CServer;
+import constants.Const;
  
 import actions.Action_GetUserById;
 import actions.Action_GetScrollsByAuthorId;
@@ -60,8 +60,8 @@ public class Handler_GetUserScrolls extends HTTPHandler
 		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollsByAuthorId(
 			req.path(1),
 			tokenPayload.getString(CField.UID),
-			CServer.SCROLLS_PAGE_SIZE,
-			CServer.SCROLLS_PAGE_SIZE * req.pathInt(3)
+			Const.SCROLLS_PAGE_SIZE,
+			Const.SCROLLS_PAGE_SIZE * req.pathInt(3)
 		));
 
 
