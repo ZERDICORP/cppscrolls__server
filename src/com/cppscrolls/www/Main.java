@@ -35,6 +35,7 @@ import handlers.Handler_GetScrollsByTopic;
 import handlers.Handler_GetUserScrolls;
 import handlers.Handler_GetHistory;
 import handlers.Handler_SolveScroll;
+import handlers.Handler_GetSolution;
 
 
 
@@ -80,6 +81,7 @@ public class Main
 		server.addHandler(new Handler_GetUserScrolls());
 		server.addHandler(new Handler_GetHistory());
 		server.addHandler(new Handler_SolveScroll());
+		server.addHandler(new Handler_GetSolution());
  		
 		try
 		{
