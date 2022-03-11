@@ -36,6 +36,17 @@ class SocketProcessor extends HTTPConfig implements Runnable
     this.middlewares = middlewares;
 	}
 	
+	public static String unEscapeString(String s){
+			StringBuilder sb = new StringBuilder();
+			for (int i=0; i<s.length(); i++)
+					switch (s.charAt(i)){
+							case '\n': sb.append("\\n"); break;
+							case '\r': sb.append("\\r"); break;
+							default: sb.append(s.charAt(i));
+					}
+			return sb.toString();
+	}	
+
 	public HTTPResponse process() throws IOException
 	{
 		HTTPResponse res = new HTTPResponse();
@@ -57,9 +68,11 @@ class SocketProcessor extends HTTPConfig implements Runnable
 		 */
 
 		int headersSize = Tools.getHeadersSize(firstSegmentBuffer, firstSegmentSize);
+		
+		System.out.println(unEscapeString(new String(firstSegmentBuffer, 0, headersSize, StandardCharsets.UTF_8)));
 
 		HTTPRequest req = new HTTPRequest();
-		if (!req.parseHeaders(new String(firstSegmentBuffer, 0, headersSize - 1, StandardCharsets.UTF_8)))
+		if (!req.parseHeaders(new String(firstSegmentBuffer, 0, headersSize, StandardCharsets.UTF_8)))
 			return null;
 
 
@@ -85,9 +98,9 @@ class SocketProcessor extends HTTPConfig implements Runnable
 			 * copying body bytes from firstSegmentBuffer to bodyBuffer
 			 */
 			
-			int bodyBytesLengthInFirstSegment = firstSegmentSize - (headersSize + 3);
+			int bodyBytesLengthInFirstSegment = firstSegmentSize - (headersSize + 2);
 			for (int i = 0; i < bodyBytesLengthInFirstSegment; ++i)
-					bodyBuffer[i] = firstSegmentBuffer[i + (headersSize + 3)];
+					bodyBuffer[i] = firstSegmentBuffer[i + (headersSize + 2)];
 
 
 

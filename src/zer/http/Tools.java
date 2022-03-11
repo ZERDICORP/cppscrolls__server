@@ -32,7 +32,7 @@ class Tools
 	{
 		for (int i = 3; i < length; ++i)
 			if (b[i] == '\n' && b[i - 1] == '\r' && b[i - 2] == b[i] && b[i - 3] == b[i - 1])
-				return i - 2;
+				return i - 1;
 		return b.length;
 	}
 }
