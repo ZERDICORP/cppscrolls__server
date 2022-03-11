@@ -36,6 +36,7 @@ import validators.Validator_SolveScroll;
 import actions.Action_GetScrollById;
 import actions.Action_GetSolutionByScrollId;
 import actions.Action_AddSolution;
+import actions.Action_UpdateUserScore;
 
 import models.Model_Scroll;
 import models.Model_Topic;
@@ -105,22 +106,27 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 
-		String fileName = AppConfig.SOLUTIONS_FOLDER_PATH + preloadedUser.getString(CField.NICKNAME);
-		String base = FTool.readPlain(AppConfig.BASE_CPP_FILE_PATH);
+		String binaryFilePath = AppConfig.SOLUTIONS_FOLDER_PATH + preloadedUser.getString(CField.NICKNAME);
+		String codeFilePath = AppConfig.SOLUTIONS_FOLDER_PATH + preloadedUser.getString(CField.NICKNAME) + "." + FType.CPP.lower();
+		String baseCode = FTool.readPlain(AppConfig.BASE_CPP_FILE_PATH);
 
 		try
 		{
-			String solution = base.replace("%CODE%", reqBody.getString(CField.SCRIPT) + "\n\n" + scroll.test_func);
-
-			OutputStream os = new FileOutputStream(fileName + ".cpp");
-			os.write(solution.getBytes());
+			OutputStream os = new FileOutputStream(codeFilePath);
+			os.write(baseCode
+				.replace("?", reqBody.getString(CField.SCRIPT) + "\n\n" + scroll.test_func)
+				.getBytes()
+			);
 			os.close();
 		}
 		catch (IOException e) { e.printStackTrace(); }
 
 
 
-		EXECResult compileResult = EXECTask.exec("g++ " + fileName + ".cpp -o " + fileName);
+		EXECResult compileResult = EXECTask.exec("g++ " + codeFilePath + " -o " + binaryFilePath);
+		
+		FTool.delete(codeFilePath);
+
 		if (compileResult.code() != EXECResultCode.OK)
 		{
 			res.body(resBody
@@ -133,7 +139,10 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 
-		EXECResult execResult = EXECTask.exec(fileName, Const.EXEC_TIMEOUT);
+		EXECResult execResult = EXECTask.exec(binaryFilePath, Const.EXEC_TIMEOUT);
+		
+		FTool.delete(binaryFilePath);
+		
 		if (execResult.code() != EXECResultCode.OK)
 		{
 			res.body(resBody
@@ -151,14 +160,20 @@ public class Handler_SolveScroll extends HTTPHandler
 		));
 		
 		boolean bestSolution = solutions.size() == 0 || solutions.get(0).time - execResult.time() >= Const.BEST_SOLUTION_TIME_DIFF;
-
 		if (bestSolution)
+		{
+			SQLInjector.inject(new Action_UpdateUserScore(
+				tokenPayload.getString(CField.UID),
+				preloadedUser.getInt(CField.SCORE) + Const.POINTS_FOR_BEST_SOLUTION
+			));
+
 			SQLInjector.inject(new Action_AddSolution(
 				reqBody.getString(CField.SCROLL_ID),
 				tokenPayload.getString(CField.UID),
 				reqBody.getString(CField.SCRIPT),
 				(int) execResult.time()
 			));
+		}
 
 
 
