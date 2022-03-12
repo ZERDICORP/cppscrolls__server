@@ -164,7 +164,7 @@ class SocketProcessor extends HTTPConfig implements Runnable
 			HTTPResponse res = process();
 			if (res == null)
 			{
-				Tools.log(LogMsg.BAD_REQUEST, new String[] { Tools.getSocketIpAddress(socket) });
+				Tools.log(LogMsg.BAD_REQUEST);
 				return;
 			}
 

@@ -19,15 +19,6 @@ class Tools
 		log(msg);
 	}
 
-	public static String getSocketIpAddress(Socket socket)
-	{
-		InetSocketAddress sockaddr = (InetSocketAddress)socket.getRemoteSocketAddress();
-		InetAddress inaddr = sockaddr.getAddress();
-		Inet4Address in4addr = (Inet4Address)inaddr;
-
-		return in4addr.toString();
-	}
-
 	public static int getHeadersSize(byte[] b, int length)
 	{
 		for (int i = 3; i < length; ++i)
