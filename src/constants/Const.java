@@ -9,6 +9,6 @@ public interface Const
 	int SCROLL_CREATION_TIMEOUT = 24;
 	int TOPICS_PAGE_SIZE = 15;
 	int SCROLLS_PAGE_SIZE = 9;
-	int EXEC_TIMEOUT = 3000;
+	int EXEC_TIMEOUT = 10000;
 	int BEST_SOLUTION_TIME_DIFF = 5;
 }

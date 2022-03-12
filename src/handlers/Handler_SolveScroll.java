@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.File;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -106,43 +107,28 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 
-		String binaryFilePath = AppConfig.SOLUTIONS_FOLDER_PATH + preloadedUser.getString(CField.NICKNAME);
-		String codeFilePath = AppConfig.SOLUTIONS_FOLDER_PATH + preloadedUser.getString(CField.NICKNAME) + "." + FType.CPP.lower();
-		String baseCode = FTool.readPlain(AppConfig.BASE_CPP_FILE_PATH);
+		String solutionFolderPath = AppConfig.SOLUTIONS_FOLDER_PATH + preloadedUser.getString(CField.NICKNAME);
+
+		File solutionFolder = new File(solutionFolderPath);
+		solutionFolder.mkdir();
 
 		try
 		{
-			OutputStream os = new FileOutputStream(codeFilePath);
-			os.write(baseCode
-				.replace("?", reqBody.getString(CField.SCRIPT) + "\n\n" + scroll.test_func)
-				.getBytes()
-			);
+			OutputStream os = new FileOutputStream(solutionFolderPath + "/main.cpp");
+			os.write((reqBody.getString(CField.SCRIPT) + "\n\n" + scroll.test_func).getBytes());
 			os.close();
 		}
 		catch (IOException e) { e.printStackTrace(); }
 
 
 
-		EXECResult compileResult = EXECTask.exec("g++ " + codeFilePath + " -o " + binaryFilePath);
-		
-		FTool.delete(codeFilePath);
+		EXECResult execResult = EXECTask.exec(
+			"docker run --rm --volume " + System.getProperty("user.dir") + "/" + solutionFolderPath + "/main.cpp:/workspace/main.cpp solution",
+			Const.EXEC_TIMEOUT
+		);
 
-		if (compileResult.code() != EXECResultCode.OK)
-		{
-			res.body(resBody
-				.put(CField.STATUS, CStatus.OK.ordinal())
-				.put(CField.ERROR, true)
-				.put(CField.OUTPUT, compileResult.message())
-				.toString());
-			return;
-		}
+		FTool.deleteFolder(solutionFolderPath);
 
-
-
-		EXECResult execResult = EXECTask.exec(binaryFilePath, Const.EXEC_TIMEOUT);
-		
-		FTool.delete(binaryFilePath);
-		
 		if (execResult.code() != EXECResultCode.OK)
 		{
 			res.body(resBody

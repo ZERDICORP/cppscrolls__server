@@ -16,6 +16,26 @@ public class FTool
 	
   public static int size(String path) { return (int) new File(path).length(); }
 	
+	public static void deleteFolder(String path)
+	{
+		try
+		{
+			File file = new File(path);
+
+			if (file.isDirectory())
+			{
+				File[] entries = file.listFiles();
+				if (entries != null)
+					for (File entry : entries)
+						deleteFolder(entry.getPath());
+			}
+			if (!file.delete()) {
+				throw new IOException("Failed to delete " + file);
+			}
+		}
+		catch (IOException e) { e.printStackTrace(); }
+	}	
+
   public static FType type(String path)
 	{
 		if (path.contains("."))

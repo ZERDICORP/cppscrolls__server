@@ -17,5 +17,7 @@ public enum FType
   FType(String mime) { this.mime = mime; }
 
   public String mime() { return mime; }
-	public String lower() { return name().toLowerCase(); }
+
+	@Override
+	public String toString() { return name().toLowerCase(); }
 }
