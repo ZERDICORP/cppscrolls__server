@@ -92,6 +92,8 @@ public class Handler_GetScrollsByTopic extends HTTPHandler
 			}
 		});
 
+
+
 		Collections.sort(scrolls, new Comparator<Model_Scroll>() {
 			@Override
 			public int compare(Model_Scroll first, Model_Scroll second)

@@ -89,11 +89,12 @@ public class Handler_DeleteScroll extends HTTPHandler
 		 * scroll does not match the user_id passed.
 		 */
 
-		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_DeleteScrollByScrollAndUserId(
+		SQLInjector.inject(new Action_DeleteScrollByScrollAndUserId(
 			reqBody.getString(CField.SCROLL_ID),
 			tokenPayload.getString(CField.UID)
 		));
-		if (scrolls.size() == 0)
+
+		if (SQLInjector.rowsUpdated() == 0)
 		{
 			res.body(resBody
         .put(CField.STATUS, CStatus.SCROLL_DOES_NOT_EXIST.ordinal())
