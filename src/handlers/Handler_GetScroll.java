@@ -80,6 +80,7 @@ public class Handler_GetScroll extends HTTPHandler
 			CField.TITLE,
 			CField.DESCRIPTION,
 			CField.SCRIPT_FUNC,
+			CField.TEST_FUNC,
 			CField.SUCCESSFUL_ATTEMPTS,
 			CField.UNSUCCESSFUL_ATTEMPTS,
 			CField.AUTHOR_ID,
