@@ -31,6 +31,7 @@ import actions.Action_UpdateUserScoreAndScrollCreationTimeById;
 import actions.Action_AddTopics;
 import actions.Action_AddScroll_Topic;
 import actions.Action_DeleteScroll_TopicByScrollId;
+import actions.Action_AddUniqueScrollVisit;
 
 import models.Model_Scroll;
 import models.Model_Topic;
@@ -179,6 +180,10 @@ public class Handler_CreateScroll extends HTTPHandler
 
       SQLInjector.inject(action_addScroll_topic);
     }
+
+
+
+		SQLInjector.inject(new Action_AddUniqueScrollVisit(scroll_id, tokenPayload.getString(CField.UID)));
 
 
 
