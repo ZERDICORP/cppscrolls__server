@@ -36,6 +36,8 @@ import validators.Validator_SolveScroll;
 
 import actions.Action_GetScrollById;
 import actions.Action_UpdateUserScore;
+import actions.Action_IncScrollSuccessfulAttempts;
+import actions.Action_IncScrollUnsuccessfulAttempts;
 
 import models.Model_Scroll;
 import models.Model_Topic;
@@ -128,6 +130,8 @@ public class Handler_SolveScroll extends HTTPHandler
 
 		if (execResult.code() != EXECResultCode.OK)
 		{
+			SQLInjector.inject(new Action_IncScrollUnsuccessfulAttempts(scroll.id));
+
 			res.body(resBody
 				.put(CField.STATUS, CStatus.OK.ordinal())
 				.put(CField.ERROR, true)
@@ -135,6 +139,10 @@ public class Handler_SolveScroll extends HTTPHandler
 				.toString());
 			return;
 		}
+
+
+
+		SQLInjector.inject(new Action_IncScrollSuccessfulAttempts(scroll.id));
 
 
 
