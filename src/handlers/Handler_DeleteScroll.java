@@ -29,7 +29,6 @@ import validators.Validator_DeleteScroll;
 
 import actions.Action_DeleteScrollByScrollAndUserId;
 import actions.Action_DeleteScroll_TopicByScrollId;
-import actions.Action_DeleteSolutionByScrollId;
 import actions.Action_DeleteUniqueScrollVisitsByScrollId;
 
 import models.Model_Scroll;
@@ -112,16 +111,6 @@ public class Handler_DeleteScroll extends HTTPHandler
 		 */
 
 		SQLInjector.inject(new Action_DeleteScroll_TopicByScrollId(reqBody.getString(CField.SCROLL_ID)));
-
-
-
-		/*\
-		 * Solutions will also be removed if the
-		 * scroll_id column matches the id of the
-		 * removed scroll.
-		 */
-
-		SQLInjector.inject(new Action_DeleteSolutionByScrollId(reqBody.getString(CField.SCROLL_ID)));
 
 
 

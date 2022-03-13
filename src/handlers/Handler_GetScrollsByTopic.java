@@ -4,8 +4,9 @@ package handlers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-	
+import java.util.Collections;
+import java.util.Comparator;
+
 import org.json.JSONObject;
 import org.json.JSONArray;
 	
@@ -77,6 +78,29 @@ public class Handler_GetScrollsByTopic extends HTTPHandler
 			Const.SCROLLS_PAGE_SIZE,
 			Const.SCROLLS_PAGE_SIZE * req.pathInt(3)
 		));
+
+
+
+		Collections.sort(scrolls, new Comparator<Model_Scroll>() {
+			@Override
+			public int compare(Model_Scroll first, Model_Scroll second)
+			{
+				return
+					((first.successful_attempts + first.unsuccessful_attempts) >
+					(second.successful_attempts + second.unsuccessful_attempts))
+					? -1 : 1;
+			}
+		});
+
+		Collections.sort(scrolls, new Comparator<Model_Scroll>() {
+			@Override
+			public int compare(Model_Scroll first, Model_Scroll second)
+			{
+				return Boolean.compare(
+					(first.bad_marks / ((float) first.views / 100)) > 50, 
+					(second.bad_marks / ((float) second.views / 100)) > 50);
+			}
+		});
 
 
 

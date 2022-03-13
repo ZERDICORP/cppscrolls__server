@@ -35,13 +35,10 @@ import constants.CMark;
 import validators.Validator_SolveScroll;
 
 import actions.Action_GetScrollById;
-import actions.Action_GetSolutionByScrollId;
-import actions.Action_AddSolution;
 import actions.Action_UpdateUserScore;
 
 import models.Model_Scroll;
 import models.Model_Topic;
-import models.Model_Solution;
 
 import tools.Tools;
 import tools.Token;
@@ -141,32 +138,9 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 
-		ArrayList<Model_Solution> solutions = SQLInjector.<Model_Solution>inject(Model_Solution.class, new Action_GetSolutionByScrollId(
-			reqBody.getString(CField.SCROLL_ID)
-		));
-		
-		boolean bestSolution = solutions.size() == 0 || solutions.get(0).time - execResult.time() >= Const.BEST_SOLUTION_TIME_DIFF;
-		if (bestSolution)
-		{
-			SQLInjector.inject(new Action_UpdateUserScore(
-				tokenPayload.getString(CField.UID),
-				preloadedUser.getInt(CField.SCORE) + Const.POINTS_FOR_BEST_SOLUTION
-			));
-
-			SQLInjector.inject(new Action_AddSolution(
-				reqBody.getString(CField.SCROLL_ID),
-				tokenPayload.getString(CField.UID),
-				reqBody.getString(CField.SCRIPT),
-				(int) execResult.time()
-			));
-		}
-
-
-
 		res.body(resBody
 			.put(CField.STATUS, CStatus.OK.ordinal())
 			.put(CField.ERROR, false)
-			.put(CField.BEST_SOLUTION, bestSolution)
 			.put(CField.OUTPUT, execResult.message())
 			.put(CField.TIME, execResult.time())
 			.toString());

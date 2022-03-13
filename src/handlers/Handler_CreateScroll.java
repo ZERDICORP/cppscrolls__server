@@ -158,7 +158,7 @@ public class Handler_CreateScroll extends HTTPHandler
    
  
  
-      SQLInjector.inject(new Action_DeleteScroll_TopicByScrollId(reqBody.getString(CField.SCROLL_ID)));
+      SQLInjector.inject(new Action_DeleteScroll_TopicByScrollId(scroll_id));
 
 
 
@@ -169,8 +169,8 @@ public class Handler_CreateScroll extends HTTPHandler
        */
 
       Action_AddScroll_Topic action_addScroll_topic = new Action_AddScroll_Topic(
-        reqBody.getString(CField.SCROLL_ID),
-        preloadedUser.getInt(CField.UID),
+        scroll_id,
+        preloadedUser.getInt(CField.SIDE),
         topics.length()
       );
 
