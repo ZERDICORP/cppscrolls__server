@@ -2,8 +2,6 @@ package handlers;
 
 
 
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.sql.SQLException;
 import java.util.UUID;
 import java.util.ArrayList;
 

@@ -19,10 +19,13 @@ public class Tools
 		return s;
 	}
 
+	public static Timestamp currentTimestamp() { return new Timestamp(System.currentTimeMillis()); }
+
+	public static long daysPassed(String fromDate) { return hoursPassed(fromDate) / 24; }
 	public static long hoursPassed(String fromDate)
 	{
 		long m1 = Timestamp.valueOf(fromDate).getTime();
-		long m2 = new Timestamp(System.currentTimeMillis()).getTime();
+		long m2 = currentTimestamp().getTime();
 		long diff = m2 - m1;
 
 		return diff / (60 * 60 * 1000);

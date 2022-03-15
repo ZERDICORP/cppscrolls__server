@@ -3,6 +3,7 @@ package handlers;
 
 
 import java.util.ArrayList;
+import java.sql.Timestamp;
 
 import org.json.JSONObject;
 
@@ -102,7 +103,8 @@ public class Handler_SignIn extends HTTPHandler
 
     JSONObject payload = new JSONObject();
     payload.put(CField.UID, user.id);
-    
+		payload.put(CField.TOKEN_CREATION_DATE, Tools.currentTimestamp().toString());
+
     String token = Token.build(payload.toString(), AppConfig.SECRET);
 
 

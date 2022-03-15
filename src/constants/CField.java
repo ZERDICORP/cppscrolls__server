@@ -4,6 +4,7 @@ package constants;
 
 public interface CField
 {
+	String TOKEN_CREATION_DATE = "cdate";
   String STATUS = "status";
   String SIDE = "side";
   String SCORE = "score";

@@ -16,6 +16,7 @@ import zer.file.FType;
 
 import configs.AppConfig;
 
+import constants.Const;
 import constants.CStatus;
 import constants.CField;
 import constants.CMark;
@@ -25,6 +26,8 @@ import tools.Token;
 import actions.Action_GetUserById;
 
 import models.Model_User;
+
+import tools.Tools;
 
 
 
@@ -42,10 +45,6 @@ public class Middleware_Auth extends HTTPMiddleware
 
 
 
-    /*
-     * checking for INVALID_TOKEN
-     */
-
     String payload = Token.access(req.headers().get("Authentication-Token"), AppConfig.SECRET);
     if (payload == null)
     {
@@ -59,12 +58,29 @@ public class Middleware_Auth extends HTTPMiddleware
 
 
 
-		/*  
-     * checking for ACCOUNT_REMOVED
-     */
-  	
+		/*\
+		 * Check if the token has expired.
+		 */
 
-		ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(tokenPayload.getString(CField.UID)));	
+		if (Tools.daysPassed(tokenPayload.getString(CField.TOKEN_CREATION_DATE)) > Const.TOKEN_EXPIRATION_DAYS)
+		{
+			res.body(resBody
+        .put(CField.STATUS, CStatus.TOKEN_EXPIRED.ordinal())
+        .toString());
+      return false;
+		}
+
+
+
+		req.headers().put("Authentication-Token-Payload", payload);
+
+
+
+		ArrayList<Model_User> users = SQLInjector.<Model_User>inject(
+			Model_User.class,
+			new Action_GetUserById(tokenPayload.getString(CField.UID))
+		);	
+
     if (users.size() == 0)
     {   
       res.body(resBody
@@ -77,10 +93,6 @@ public class Middleware_Auth extends HTTPMiddleware
 
 
 
-    req.headers().put("Authentication-Token-Payload", payload);
-
-
-	
 		if (Arrays.stream(ann.marks()).anyMatch(s -> s.equals(CMark.WITH_PRELOADED_USER)))
 			req.headers().put("Preloaded-User", new JSONObject(user, new String[] {
 				CField.NICKNAME,
