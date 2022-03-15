@@ -2,18 +2,12 @@ package actions;
  
  
  
-import zer.sql.SQLAction;
-
-
-
-public class Action_GetUserById extends SQLAction
+public class Action_GetUserById extends ActionTemplate_GetUser
 {
-  {
-    super.query("SELECT * FROM users WHERE id = ?");
-  }
-  
   public Action_GetUserById(String id)
-  {   
-    put(id);
+  {
+		super("user.id = ?");
+
+		put(id);
   }
 }

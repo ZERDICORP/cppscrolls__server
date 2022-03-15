@@ -16,4 +16,5 @@ public class AppConfig
 	public static String DATABASE_PASSWORD;
 	public static String SQL_DRIVER;
 	public static String SQL_CONNECTION_STRING;
+	public static String DOCKER_RUN_COMMAND;
 }

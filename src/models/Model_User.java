@@ -16,6 +16,8 @@ public class Model_User extends SQLModel
   public String email;
   public String password_hash;
   public String image;
+	
+	public Long points_loss;
 
   public int score;
   public int side;

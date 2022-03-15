@@ -34,26 +34,35 @@ public class Handler_GetRandomScroll extends HTTPHandler
 {
   @Override
   public void handle(HTTPRequest req, HTTPResponse res)
-  {   
+  {
+		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
+
     res.headers().put("Content-Type", FType.JSON.mime());
    
     JSONObject resBody = new JSONObject();
 
 
 
-		/*\
-		 * We will not check if the scrolls
-		 * array is empty, as there will always
-		 * be at least 1 scroll in the database.
-		 */
+    ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetRandomScroll(
+			tokenPayload.getString(CField.UID),
+			req.pathInt(0)
+		));
 
-    ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetRandomScroll(Integer.parseInt(req.path(0))));
+		if (scrolls.size() == 0)
+    {   
+      res.body(resBody
+        .put(CField.STATUS, CStatus.NO_SCROLLS_ON_YOUR_SIDE.ordinal())
+        .toString());
+      return;
+    }   
+   
+    Model_Scroll scroll = scrolls.get(0);
 
 
 
     res.body(resBody
       .put(CField.STATUS, CStatus.OK.ordinal())
-      .put(CField.SCROLL_ID, scrolls.get(0).id)
+      .put(CField.SCROLL_ID, scroll.id)
       .toString());
   }
 }

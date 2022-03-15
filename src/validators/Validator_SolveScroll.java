@@ -23,7 +23,7 @@ public class Validator_SolveScroll
     requiredKeys = new HashMap<>();
 
 		requiredKeys.put(CField.SCROLL_ID, CFieldValueType.STR);
-    requiredKeys.put(CField.SCRIPT, CFieldValueType.STR);
+    requiredKeys.put(CField.SOLUTION, CFieldValueType.STR);
   }
 
   public static CStatus validate(String body)

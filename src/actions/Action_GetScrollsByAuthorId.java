@@ -1,37 +1,26 @@
 package actions;
- 
- 
- 
-import zer.sql.SQLAction;
 
 
 
-public class Action_GetScrollsByAuthorId extends SQLAction
+import constants.Const;
+ 
+ 
+ 
+public class Action_GetScrollsByAuthorId extends ActionTemplate_GetScroll
 {
+  public Action_GetScrollsByAuthorId(String user_id, String author_id, int page)
   {
-		super.query(
-      "SELECT "
-        + "sc.*,"
-        + "u1.id AS author_id,"
-        + "u1.image AS author_image,"
-        + "COUNT(usv.scroll_id) as views,"
-        + "COUNT(CASE WHEN usv.bad_mark = true THEN 1 END) as bad_marks,"
-        + "COUNT(CASE WHEN usv.bad_mark = true AND usv.user_id = ? THEN 1 END) > 0 as bad_mark,"
-        + "COUNT(CASE WHEN usv.user_id = ? THEN 1 END) > 0 as visited "
-			+ "FROM scrolls sc "
-				+ "LEFT JOIN users u1 ON u1.id = sc.author_id "
-				+ "LEFT JOIN unique_scroll_visits usv ON usv.scroll_id = sc.id "
-      + "WHERE sc.author_id = ? "
+		super(user_id,
+			"FROM scrolls s "
+				+ "LEFT JOIN users u ON u.id = s.author_id "
+				+ "LEFT JOIN unique_scroll_visits usv ON usv.scroll_id = s.id "
+      + "WHERE s.author_id = ? "
 			+ "GROUP BY usv.scroll_id "
 			+ "LIMIT ? OFFSET ?"
-    );
-  }
-  
-  public Action_GetScrollsByAuthorId(String author_id, String user_id, int limit, int offset)
-  {
-		put(user_id, 2);
+		);
+
 		put(author_id);
-		put(limit);
-		put(offset);
+		put(Const.SCROLLS_PAGE_SIZE);
+		put(Const.SCROLLS_PAGE_SIZE * page);
   }
 }

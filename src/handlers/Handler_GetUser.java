@@ -61,6 +61,7 @@ public class Handler_GetUser extends HTTPHandler
 				CField.NICKNAME,
 				CField.BIO,
 				CField.IMAGE,
+				CField.POINTS_LOSS,
 				CField.SCORE,
 				CField.SIDE
 			});
@@ -78,7 +79,11 @@ public class Handler_GetUser extends HTTPHandler
      * checking for USER_DOES_NOT_EXIST
      */
 
-		ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(req.path(1)));
+		ArrayList<Model_User> users = SQLInjector.<Model_User>inject(
+			Model_User.class,
+			new Action_GetUserById(req.path(1))
+		);
+
     if (users.size() == 0)
     {   
       res.body(resBody
@@ -95,6 +100,7 @@ public class Handler_GetUser extends HTTPHandler
 			CField.NICKNAME,
 			CField.BIO,
 			CField.IMAGE,
+			CField.POINTS_LOSS,
 			CField.SCORE,
 			CField.SIDE
 		});

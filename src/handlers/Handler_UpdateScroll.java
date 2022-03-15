@@ -83,17 +83,9 @@ public class Handler_UpdateScroll extends HTTPHandler
 
 
 
-		/*\
-		 * Even if there is no scroll with the specified
-		 * id, there will be a one element in the array
-		 * but its fields will be NULL, so we can only
-		 * know if the scroll was found by checking if
-		 * the id of the scroll is not NULL.
-		 */
-
 		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollById(
-			reqBody.getString(CField.SCROLL_ID),
-			tokenPayload.getString(CField.UID)
+			tokenPayload.getString(CField.UID),
+			reqBody.getString(CField.SCROLL_ID)
 		));
 
 		if (scrolls.size() == 0 || !scrolls.get(0).author_id.equals(tokenPayload.getString(CField.UID)))

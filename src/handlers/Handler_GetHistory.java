@@ -47,24 +47,29 @@ public class Handler_GetHistory extends HTTPHandler
 	
 		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetHistory(
 			tokenPayload.getString(CField.UID),
-			Const.SCROLLS_PAGE_SIZE,
-			Const.SCROLLS_PAGE_SIZE * req.pathInt(2)
+			req.pathInt(2)
 		));
 
 
 
 		JSONArray scrollsJSON = new JSONArray();
-		for (Model_Scroll scroll : scrolls)
-			scrollsJSON.put(new JSONObject(scroll, new String[] {
-				CField.ID,
-				CField.TITLE,
-				CField.DESCRIPTION,
-				CField.SUCCESSFUL_ATTEMPTS,
-				CField.UNSUCCESSFUL_ATTEMPTS,
-				CField.AUTHOR_IMAGE,
-				CField.BAD_MARKS,
-				CField.VIEWS
-			}));
+    for (Model_Scroll scroll : scrolls)
+    {   
+      JSONObject scrollJSON = new JSONObject(scroll, new String[] {
+        CField.ID,
+        CField.TITLE,
+        CField.DESCRIPTION,
+        CField.SUCCESSFUL_ATTEMPTS,
+        CField.UNSUCCESSFUL_ATTEMPTS,
+        CField.BAD_MARKS,
+        CField.VIEWS,
+        CField.BAD_REPUTATION
+      }); 
+          
+      scrollJSON.put(CField.SOLVED, scroll.solution != null);
+  
+      scrollsJSON.put(scrollJSON);
+    }
 
 
 

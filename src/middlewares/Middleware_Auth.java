@@ -62,7 +62,7 @@ public class Middleware_Auth extends HTTPMiddleware
 		/*  
      * checking for ACCOUNT_REMOVED
      */
-  
+  	
 
 		ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(tokenPayload.getString(CField.UID)));	
     if (users.size() == 0)
@@ -86,6 +86,7 @@ public class Middleware_Auth extends HTTPMiddleware
 				CField.NICKNAME,
 				CField.BIO,
 				CField.IMAGE,
+				CField.POINTS_LOSS,
 				CField.SCORE,
 				CField.SIDE,
 				CField.PASSWORD_HASH,

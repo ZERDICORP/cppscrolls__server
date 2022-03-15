@@ -18,11 +18,9 @@ import constants.CField;
 import constants.CSide;
 import constants.CMark;
 
-import actions.Action_GetBestUsers;
-import actions.Action_GetSides;
+import actions.Action_GetRatingOfSide;
 
-import models.Model_User;
-import models.Model_Side;
+import models.Model_Rating;
 
 
 
@@ -40,57 +38,47 @@ public class Handler_Rating extends HTTPHandler
     res.headers().put("Content-Type", FType.JSON.mime());
     
     JSONObject resBody = new JSONObject();
-
-
-    
-    /*
-     * getting a sides
-     *\
-     * The sides are created from the users
-     * table. In a database, we always have
-     * two zero users: a dark zero user and a
-     * bright zero user. This is the reason
-     * why we will always get two sides from
-     * query below. And since the output is
-     * sorted by the "side" column (from
-     * smallest to largest), the first
-     * element of the "sides" array is the
-     * dark side (0), and the second element
-     * is the bright side (1).
-     */
-
-    ArrayList<Model_Side> sides = SQLInjector.<Model_Side>inject(Model_Side.class, new Action_GetSides());
-
-    JSONObject darkSide = new JSONObject(sides.get(CSide.DARK.ordinal()), new String[] { CField.SCORE });
-    JSONObject brightSide = new JSONObject(sides.get(CSide.BRIGHT.ordinal()), new String[] { CField.SCORE });
+		
+		JSONObject darkSideJSON = new JSONObject();
+		darkSideJSON.put(CField.SCORE, 0);
+		
+		JSONObject brightSideJSON = new JSONObject();
+		brightSideJSON.put(CField.SCORE, 0);
 
 
 
-    /*
-     * getting best users
-     *\
-     * The first element of the "bestUsers"
-     * array is the best dark user, and the
-     * second element is the best bright user.
-     */
+    ArrayList<Model_Rating> darkSideRating = SQLInjector.<Model_Rating>inject(
+			Model_Rating.class,
+			new Action_GetRatingOfSide(CSide.DARK.ordinal())
+		);
 
-    ArrayList<Model_User> bestUsers = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetBestUsers());
+		if (darkSideRating.size() > 0)
+			darkSideJSON = new JSONObject(darkSideRating.get(0), new String[] {
+				CField.SCORE,
+				CField.BEST_USER_ID,
+				CField.BEST_USER_IMAGE
+			});
 
-    Model_User bestDarkUser = bestUsers.get(CSide.DARK.ordinal());
-    Model_User bestBrightUser = bestUsers.get(CSide.BRIGHT.ordinal());
 
-    if (!bestDarkUser.id.equals(String.valueOf(CSide.DARK.ordinal())))
-      darkSide.put(CField.BEST_USER, new JSONObject(bestDarkUser, new String[] { CField.ID, CField.IMAGE }));
 
-    if (!bestBrightUser.id.equals(String.valueOf(CSide.BRIGHT.ordinal())))
-      brightSide.put(CField.BEST_USER, new JSONObject(bestBrightUser, new String[] { CField.ID, CField.IMAGE }));
+		ArrayList<Model_Rating> brightSideRating = SQLInjector.<Model_Rating>inject(
+			Model_Rating.class,
+			new Action_GetRatingOfSide(CSide.BRIGHT.ordinal())
+		);
+
+		if (brightSideRating.size() > 0)
+			brightSideJSON = new JSONObject(brightSideRating.get(0), new String[] {
+				CField.SCORE,
+				CField.BEST_USER_ID,
+				CField.BEST_USER_IMAGE
+			});
 
 
 
     res.body(resBody
       .put(CField.STATUS, CStatus.OK.ordinal())
-      .put(CField.DARK_SIDE, darkSide)
-      .put(CField.BRIGHT_SIDE, brightSide)
+      .put(CField.DARK_SIDE, darkSideJSON)
+      .put(CField.BRIGHT_SIDE, brightSideJSON)
       .toString());
   }
 }

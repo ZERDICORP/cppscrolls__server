@@ -47,37 +47,56 @@ public class Handler_GetUserScrolls extends HTTPHandler
 
 
 
-		if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(req.path(1))).size() == 0)
+		if (!req.path(1).equals(tokenPayload.getString(CField.UID)))
 		{
-			res.body(resBody
-				.put(CField.STATUS, CStatus.USER_DOES_NOT_EXIST.ordinal())
-				.toString());
-			return;
+			ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(
+				req.path(1)
+			));
+
+			if (users.size() == 0)
+			{
+				res.body(resBody
+					.put(CField.STATUS, CStatus.USER_DOES_NOT_EXIST.ordinal())
+					.toString());
+				return;
+			}
+
+			Model_User user = users.get(0);
+
+
+
+			resBody.put(CField.AUTHOR_ID, user.id);
+			resBody.put(CField.AUTHOR_IMAGE, user.image);
 		}
 
 
 
 		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollsByAuthorId(
-			req.path(1),
 			tokenPayload.getString(CField.UID),
-			Const.SCROLLS_PAGE_SIZE,
-			Const.SCROLLS_PAGE_SIZE * req.pathInt(3)
+			req.path(1),
+			req.pathInt(3)
 		));
 
 
 
 		JSONArray scrollsJSON = new JSONArray();
 		for (Model_Scroll scroll : scrolls)
-			scrollsJSON.put(new JSONObject(scroll, new String[] {
+		{
+			JSONObject scrollJSON = new JSONObject(scroll, new String[] {
 				CField.ID,
 				CField.TITLE,
 				CField.DESCRIPTION,
 				CField.SUCCESSFUL_ATTEMPTS,
 				CField.UNSUCCESSFUL_ATTEMPTS,
-				CField.AUTHOR_IMAGE,
 				CField.BAD_MARKS,
-				CField.VIEWS
-			}));
+				CField.VIEWS,
+				CField.BAD_REPUTATION
+			});
+			
+			scrollJSON.put(CField.SOLVED, scroll.solution != null);
+
+			scrollsJSON.put(scrollJSON);
+		}
 
 
 

@@ -30,6 +30,7 @@ import validators.Validator_DeleteScroll;
 import actions.Action_DeleteScrollByScrollAndUserId;
 import actions.Action_DeleteScroll_TopicByScrollId;
 import actions.Action_DeleteUniqueScrollVisitsByScrollId;
+import actions.Action_UpdateUserScore;
 
 import models.Model_Scroll;
 import models.Model_Topic;
@@ -43,7 +44,10 @@ import tools.Token;
 (
   pattern = "/scroll",
   type = "DELETE",
-	marks = {	CMark.WITH_AUTH_TOKEN	}
+	marks = {
+		CMark.WITH_AUTH_TOKEN,
+		CMark.WITH_PRELOADED_USER
+	}
 )
 public class Handler_DeleteScroll extends HTTPHandler
 {
@@ -51,6 +55,7 @@ public class Handler_DeleteScroll extends HTTPHandler
   public void handle(HTTPRequest req, HTTPResponse res)
   {
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
+		JSONObject preloadedUser = new JSONObject(req.headers().get("Preloaded-User"));
 
     res.headers().put("Content-Type", FType.JSON.mime());
     
@@ -122,6 +127,13 @@ public class Handler_DeleteScroll extends HTTPHandler
 		 */
 
 		SQLInjector.inject(new Action_DeleteUniqueScrollVisitsByScrollId(reqBody.getString(CField.SCROLL_ID)));
+
+
+
+		SQLInjector.inject(new Action_UpdateUserScore(
+			tokenPayload.getString(CField.UID),
+			preloadedUser.getInt(CField.SCORE) - Const.POINTS_FOR_DELETING_SCROLL
+		));
 
 
 

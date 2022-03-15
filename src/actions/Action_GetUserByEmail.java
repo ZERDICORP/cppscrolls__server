@@ -2,17 +2,12 @@ package actions;
    
   
   
-import zer.sql.SQLAction;
-
-  
-public class Action_GetUserByEmail extends SQLAction
+public class Action_GetUserByEmail extends ActionTemplate_GetUser
 { 
-  {   
-    super.query("SELECT * FROM users WHERE email = ?");
-  }   
-  
   public Action_GetUserByEmail(String email) 
-  {   
+  {
+		super("user.email = ?");
+
     put(email);
   }   
 }

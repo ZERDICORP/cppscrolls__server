@@ -1,19 +1,13 @@
 package actions;
-   
-  
-  
-import zer.sql.SQLAction;
-  
-  
-  
-public class Action_GetUserByNickname extends SQLAction
-{ 
-  {   
-    super.query("SELECT * FROM users WHERE nickname = ?");
-  }   
-  
+
+
+
+public class Action_GetUserByNickname extends ActionTemplate_GetUser
+{
   public Action_GetUserByNickname(String nickname) 
-  {   
-    put(nickname);
+  {
+		super("user.nickname = ?");
+
+		put(nickname);
   }   
 }

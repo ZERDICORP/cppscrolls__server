@@ -27,7 +27,12 @@ import constants.CMark;
 
 import validators.Validator_BadMark;
 
+import actions.Action_GetScrollById;
+import actions.Action_UpdateUserScore;
+import actions.Action_ToggleScrollBadReputation;
 import actions.Action_ToggleBadMark;
+
+import models.Model_Scroll;
 
 import tools.Tools;
 import tools.Token;
@@ -38,7 +43,10 @@ import tools.Token;
 (
   pattern = "/bad_mark",
   type = "POST",
-	marks = {	CMark.WITH_AUTH_TOKEN	}
+	marks = {
+		CMark.WITH_AUTH_TOKEN,
+		CMark.WITH_PRELOADED_USER
+	}
 )
 public class Handler_BadMark extends HTTPHandler
 {
@@ -46,6 +54,7 @@ public class Handler_BadMark extends HTTPHandler
   public void handle(HTTPRequest req, HTTPResponse res)
   {
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
+		JSONObject preloadedUser = new JSONObject(req.headers().get("Preloaded-User"));
 
     res.headers().put("Content-Type", FType.JSON.mime());
     
@@ -54,10 +63,6 @@ public class Handler_BadMark extends HTTPHandler
 		String bodyAsString = req.bodyAsString();
 
 
-
-    /*
-     * request body validation
-     */
 
     CStatus status = Validator_BadMark.validate(bodyAsString);
     if (status != CStatus.OK)
@@ -72,27 +77,86 @@ public class Handler_BadMark extends HTTPHandler
 
 
 
-		SQLInjector.inject(new Action_ToggleBadMark(
-			reqBody.getString(CField.SCROLL_ID),
-			tokenPayload.getString(CField.UID)
+		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollById(
+			tokenPayload.getString(CField.UID),
+			reqBody.getString(CField.SCROLL_ID)
 		));
+		
+		if (scrolls.size() == 0)
+		{
+			res.body(resBody
+        .put(CField.STATUS, CStatus.SCROLL_DOES_NOT_EXIST.ordinal())
+        .toString());
+      return;
+		}
 
-
-
-		/*
-		 * checking for SCROLL_HAS_NOT_BEEN_VISITED
-		 *\
-		 * If no row has been updated, it means the
-		 * scroll has not been visited.
-		 */
-
-		if (SQLInjector.rowsUpdated() <= 0)
+		Model_Scroll scroll = scrolls.get(0);
+	
+		if (scroll.visited == 0)
 		{
 			res.body(resBody
         .put(CField.STATUS, CStatus.SCROLL_HAS_NOT_BEEN_VISITED.ordinal())
         .toString());
       return;
 		}
+
+
+
+		/*\
+		 * If we didn't set a bad mark, the scroll
+		 * has a good reputation, and by setting
+		 * a bad mark, the reputation will become
+		 * bad - we should switch the scroll's
+		 * bad_reputation to true and punish the
+		 * scroll's author by deducting
+		 * POINTS_LOSS_FOR_BAD_SCROLL from his points.
+		 */
+			
+		if (
+			scroll.bad_mark == 0 &&
+			scroll.bad_reputation == 0 &&
+			((scroll.bad_marks + 1) / ((float) scroll.views / 100)) > 50
+		)
+		{
+			SQLInjector.inject(new Action_UpdateUserScore(
+				tokenPayload.getString(CField.UID),
+				preloadedUser.getInt(CField.SCORE) - Const.POINTS_LOSS_FOR_BAD_SCROLL
+			));
+
+			SQLInjector.inject(new Action_ToggleScrollBadReputation(
+				reqBody.getString(CField.SCROLL_ID)
+			));
+		}
+
+
+
+		/*\
+		 * The same as in the previous case,
+		 * only in reverse.
+		 */
+
+		if (
+			scroll.bad_mark == 1 &&
+			scroll.bad_reputation == 1 &&
+			((scroll.bad_marks - 1) / ((float) scroll.views / 100)) <= 50
+		)
+		{
+			SQLInjector.inject(new Action_UpdateUserScore(
+				tokenPayload.getString(CField.UID),
+				preloadedUser.getInt(CField.SCORE) + Const.POINTS_LOSS_FOR_BAD_SCROLL
+			));
+
+			SQLInjector.inject(new Action_ToggleScrollBadReputation(
+				reqBody.getString(CField.SCROLL_ID)
+			));
+		}
+
+
+
+		SQLInjector.inject(new Action_ToggleBadMark(
+			reqBody.getString(CField.SCROLL_ID),
+			tokenPayload.getString(CField.UID)
+		));
 
 
 

@@ -1,21 +1,14 @@
 package actions;
  
  
- 
-import zer.sql.SQLAction;
 
-
-
-public class Action_GetUserByLoginAndPasswordHash extends SQLAction
+public class Action_GetUserByLoginAndPasswordHash extends ActionTemplate_GetUser
 {
-  {
-    super.query("SELECT * FROM users WHERE (email = ? OR nickname = ?) AND password_hash = ?");
-  }
-  
   public Action_GetUserByLoginAndPasswordHash(String login, String password_hash)
-  {   
-    put(login);
-    put(login);
+  {
+		super("(email = ? OR nickname = ?) AND password_hash = ?");
+
+    put(login, 2);
     put(password_hash);
   }
 }

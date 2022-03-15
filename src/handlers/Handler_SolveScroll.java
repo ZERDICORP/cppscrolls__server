@@ -36,6 +36,8 @@ import validators.Validator_SolveScroll;
 
 import actions.Action_GetScrollById;
 import actions.Action_UpdateUserScore;
+import actions.Action_UpdateSolution;
+import actions.Action_UpdateUserScore;
 import actions.Action_IncScrollSuccessfulAttempts;
 import actions.Action_IncScrollUnsuccessfulAttempts;
 
@@ -72,10 +74,6 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 
-		/*
-		 * request body validation
-		 */
-
 		CStatus status = Validator_SolveScroll.validate(bodyAsString);
 		if (status != CStatus.OK)
 		{
@@ -90,8 +88,8 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollById(
-			reqBody.getString(CField.SCROLL_ID),
-			tokenPayload.getString(CField.UID)
+			tokenPayload.getString(CField.UID),
+			reqBody.getString(CField.SCROLL_ID)
 		));
 
 		if (scrolls.size() == 0)
@@ -106,15 +104,12 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 
-		String solutionFolderPath = AppConfig.SOLUTIONS_FOLDER_PATH + preloadedUser.getString(CField.NICKNAME);
-
-		File solutionFolder = new File(solutionFolderPath);
-		solutionFolder.mkdir();
+		String solutionFilePath = AppConfig.SOLUTIONS_FOLDER_PATH + preloadedUser.getString(CField.NICKNAME) + ".cpp";
 
 		try
 		{
-			OutputStream os = new FileOutputStream(solutionFolderPath + "/main.cpp");
-			os.write((reqBody.getString(CField.SCRIPT) + "\n\n" + scroll.test_func).getBytes());
+			OutputStream os = new FileOutputStream(solutionFilePath);
+			os.write((scroll.test_func + "\n\n" + reqBody.getString(CField.SOLUTION)).getBytes());
 			os.close();
 		}
 		catch (IOException e) { e.printStackTrace(); }
@@ -122,11 +117,14 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 		EXECResult execResult = EXECTask.exec(
-			"docker run --rm --volume " + System.getProperty("user.dir") + "/" + solutionFolderPath + "/main.cpp:/workspace/main.cpp solution",
+			Tools.replaceParams(
+				AppConfig.DOCKER_RUN_COMMAND,
+				new String[] { System.getProperty("user.dir") + "/" + solutionFilePath }
+			),
 			Const.EXEC_TIMEOUT
 		);
 
-		FTool.deleteFolder(solutionFolderPath);
+		FTool.delete(solutionFilePath);
 
 		if (execResult.code() != EXECResultCode.OK)
 		{
@@ -139,6 +137,22 @@ public class Handler_SolveScroll extends HTTPHandler
 				.toString());
 			return;
 		}
+
+
+	
+		if (scroll.solution == null)
+			SQLInjector.inject(new Action_UpdateUserScore(
+				tokenPayload.getString(CField.UID),
+				preloadedUser.getInt(CField.SCORE) + Const.POINTS_FOR_SOLVING_SCROLL
+			));
+
+
+
+		SQLInjector.inject(new Action_UpdateSolution(
+			scroll.id,
+			tokenPayload.getString(CField.UID),
+			reqBody.getString(CField.SOLUTION)
+		));
 
 
 

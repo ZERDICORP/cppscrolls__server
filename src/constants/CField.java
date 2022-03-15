@@ -20,7 +20,8 @@ public interface CField
   String LOGIN = "login";
   String IMAGE = "image";
 	String USER = "user";
-  String BEST_USER = "best_user";
+  String BEST_USER_ID = "best_user_id";
+	String BEST_USER_IMAGE = "best_user_image";
   String BRIGHT_SIDE = "bright_side";
   String DARK_SIDE = "dark_side";
 	String SCROLL = "scroll";
@@ -29,12 +30,11 @@ public interface CField
 	String TITLE = "title";
 	String TEST_FUNC = "test_func";
 	String SCRIPT_FUNC = "script_func";
-	String SCRIPT = "script";
 	String ERROR = "error";
+	String POINTS_LOSS = "points_loss";
 	String OUTPUT = "output";
 	String TIME = "time";
-	String HAS_SOLUTION = "has_solution";
-	String BEST_SOLUTION = "best_solution";
+	String BAD_REPUTATION = "bad_reputation";
 	String DESCRIPTION = "description";
 	String SCROLL_CREATION_TIME = "scroll_creation_time";
 	String SUCCESSFUL_ATTEMPTS = "successful_attempts";
@@ -44,7 +44,7 @@ public interface CField
 	String VIEWS = "views";
 	String BAD_MARK = "bad_mark";
 	String SOLUTION = "solution";
-	String SOLUTION_ID = "solution_id";
+	String SOLVED = "solved";
 	String SOLUTION_AUTHOR_IMAGE = "solution_author_image";
 	String AUTHOR_ID = "author_id";
 	String AUTHOR_IMAGE = "author_image";

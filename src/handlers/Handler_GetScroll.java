@@ -52,8 +52,8 @@ public class Handler_GetScroll extends HTTPHandler
 
 
 		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollById(
-			req.path(1),
-			tokenPayload.getString(CField.UID)
+			tokenPayload.getString(CField.UID),
+			req.path(1)
 		));
 
 		if (scrolls.size() == 0)
@@ -87,7 +87,9 @@ public class Handler_GetScroll extends HTTPHandler
 			CField.AUTHOR_IMAGE,
 			CField.VIEWS,
 			CField.BAD_MARKS,
-			CField.BAD_MARK
+			CField.BAD_MARK,
+			CField.BAD_REPUTATION,
+			CField.SOLUTION
 		});
 
 

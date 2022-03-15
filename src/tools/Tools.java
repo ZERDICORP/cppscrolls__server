@@ -11,6 +11,14 @@ import java.sql.Timestamp;
 
 public class Tools
 {
+	public static String replaceParams(String s, String[] params)
+	{
+		for (String param : params)
+			s = s.replaceFirst("\\?", param);
+
+		return s;
+	}
+
 	public static long hoursPassed(String fromDate)
 	{
 		long m1 = Timestamp.valueOf(fromDate).getTime();

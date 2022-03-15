@@ -24,7 +24,7 @@ import constants.CMark;
 import constants.Const;
  
 import actions.Action_GetTopicBySideAndName;
-import actions.Action_IncTopicRequestsById;
+import actions.Action_IncTopicRequests;
 import actions.Action_GetScrollsByTopicId;
  
 import models.Model_Topic;
@@ -68,57 +68,36 @@ public class Handler_GetScrollsByTopic extends HTTPHandler
 
 
 
-		SQLInjector.inject(new Action_IncTopicRequestsById(topic.id));
+		SQLInjector.inject(new Action_IncTopicRequests(topic.id));
 
 
 
 		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollsByTopicId(
 			tokenPayload.getString(CField.UID),
 			topic.id,
-			Const.SCROLLS_PAGE_SIZE,
-			Const.SCROLLS_PAGE_SIZE * req.pathInt(3)
+			req.pathInt(3)
 		));
 
 
 
-		Collections.sort(scrolls, new Comparator<Model_Scroll>() {
-			@Override
-			public int compare(Model_Scroll first, Model_Scroll second)
-			{
-				return
-					((first.successful_attempts + first.unsuccessful_attempts) >
-					(second.successful_attempts + second.unsuccessful_attempts))
-					? -1 : 1;
-			}
-		});
-
-
-
-		Collections.sort(scrolls, new Comparator<Model_Scroll>() {
-			@Override
-			public int compare(Model_Scroll first, Model_Scroll second)
-			{
-				return Boolean.compare(
-					(first.bad_marks / ((float) first.views / 100)) > 50, 
-					(second.bad_marks / ((float) second.views / 100)) > 50);
-			}
-		});
-
-
-
 		JSONArray scrollsJSON = new JSONArray();
-		for (Model_Scroll scroll : scrolls)
-			scrollsJSON.put(new JSONObject(scroll, new String[] {
-				CField.ID,
-				CField.TITLE,
-				CField.DESCRIPTION,
-				CField.SUCCESSFUL_ATTEMPTS,
-				CField.UNSUCCESSFUL_ATTEMPTS,
-				CField.AUTHOR_IMAGE,
-				CField.BAD_MARKS,
-				CField.VIEWS
-			}));
-
+    for (Model_Scroll scroll : scrolls)
+    {   
+      JSONObject scrollJSON = new JSONObject(scroll, new String[] {
+        CField.ID,
+        CField.TITLE,
+        CField.DESCRIPTION,
+        CField.SUCCESSFUL_ATTEMPTS,
+        CField.UNSUCCESSFUL_ATTEMPTS,
+        CField.BAD_MARKS,
+        CField.VIEWS,
+        CField.BAD_REPUTATION
+      }); 
+          
+      scrollJSON.put(CField.SOLVED, scroll.solution != null);
+  
+      scrollsJSON.put(scrollJSON);
+    }
 
 
 		res.body(resBody
