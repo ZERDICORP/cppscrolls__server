@@ -29,7 +29,10 @@ import models.Model_User;
 (
   pattern = "/user/bio",
   type = "PUT",
-  marks = { CMark.WITH_AUTH_TOKEN }
+  marks = {
+		CMark.WITH_AUTH_TOKEN,
+		CMark.WITH_PRELOADED_USER
+	}
 )
 public class Handler_UpdateBio extends HTTPHandler
 {
@@ -37,6 +40,7 @@ public class Handler_UpdateBio extends HTTPHandler
 	public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
 	{
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
+		JSONObject preloadedUser = new JSONObject(req.headers().get("Preloaded-User"));
 
 		res.headers().put("Content-Type", FType.JSON.mime());
     
@@ -56,6 +60,20 @@ public class Handler_UpdateBio extends HTTPHandler
     }
 
     JSONObject reqBody = new JSONObject(bodyAsString);
+
+
+
+		if
+		(
+			preloadedUser.has(CField.BIO) &&
+			preloadedUser.getString(CField.BIO).equals(reqBody.getString(CField.BIO))
+		)
+    {
+      res.body(resBody
+        .put(CField.STATUS, CStatus.NOTHING_TO_CHANGE.ordinal())
+        .toString());
+      return;
+    }
 
 
 

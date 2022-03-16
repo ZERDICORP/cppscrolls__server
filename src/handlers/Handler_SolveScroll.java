@@ -144,11 +144,16 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 
-		new Action_UpdateSolution(
-			scroll.id,
-			tokenPayload.getString(CField.UID),
-			reqBody.getString(CField.SOLUTION)
-		);
+		if
+		(
+		 	scroll.solution == null ||
+			!reqBody.getString(CField.SOLUTION).equals(scroll.solution.toString())
+		)
+			new Action_UpdateSolution(
+				scroll.id,
+				tokenPayload.getString(CField.UID),
+				reqBody.getString(CField.SOLUTION)
+			);
 
 
 
