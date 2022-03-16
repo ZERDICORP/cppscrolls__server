@@ -4,6 +4,7 @@ package constants;
 
 public interface CRegex
 {
+	String HASH = "[A-Fa-f0-9]{64}";
 	String TOPIC = "[a-zA-Z0-9_-]{1,255}";
 	String PAGE = "\\d+";
 	String SIDE = "[01]";

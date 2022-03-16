@@ -27,7 +27,7 @@ import models.Model_User;
 
 @HTTPRoute
 (
-  pattern = "/user/" + CRegex.UUID,
+  pattern = "/user/" + CRegex.HASH,
   type = "GET",
   marks = {
 		CMark.WITH_AUTH_TOKEN,

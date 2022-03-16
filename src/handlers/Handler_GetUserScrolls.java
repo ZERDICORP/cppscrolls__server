@@ -29,7 +29,7 @@ import models.Model_Scroll;
 
 @HTTPRoute
 (
-	pattern = "/user/" + CRegex.UUID + "/scrolls/" + CRegex.PAGE,
+	pattern = "/user/" + CRegex.HASH + "/scrolls/" + CRegex.PAGE,
 	type = "GET",
 	marks = {	CMark.WITH_AUTH_TOKEN	}
 )

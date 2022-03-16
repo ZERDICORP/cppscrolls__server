@@ -3,7 +3,6 @@ package handlers;
 
 
 import java.sql.SQLException;
-import java.util.UUID;
 import java.util.ArrayList;
 
 import org.json.JSONObject;
@@ -88,7 +87,7 @@ public class Handler_SignUp extends HTTPHandler
      * adding user to database
      */
 
-    String id = UUID.randomUUID().toString();
+    String id = Tools.sha256(reqBody.getString(CField.EMAIL));
     String password_hash = Tools.sha256(reqBody.getString(CField.PASSWORD));
 
     new Action_AddUser(
