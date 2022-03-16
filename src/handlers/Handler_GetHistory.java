@@ -3,6 +3,7 @@ package handlers;
 
 
 import java.util.ArrayList;
+import java.sql.SQLException;
 	
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -11,14 +12,12 @@ import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
-import zer.sql.SQLInjector;
 import zer.file.FType;
  
 import constants.CStatus;
 import constants.CField;
 import constants.CRegex;
 import constants.CMark;
-import constants.Const;
 
 import actions.Action_GetHistory;
  
@@ -35,7 +34,7 @@ import models.Model_Scroll;
 public class Handler_GetHistory extends HTTPHandler
 {
 	@Override
-	public void handle(HTTPRequest req, HTTPResponse res)
+	public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
 	{
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 
@@ -45,10 +44,10 @@ public class Handler_GetHistory extends HTTPHandler
 
 
 	
-		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetHistory(
+		ArrayList<Model_Scroll> scrolls = new Action_GetHistory(
 			tokenPayload.getString(CField.UID),
 			req.pathInt(2)
-		));
+		).result();
 
 
 
@@ -58,6 +57,8 @@ public class Handler_GetHistory extends HTTPHandler
       JSONObject scrollJSON = new JSONObject(scroll, new String[] {
         CField.ID,
         CField.TITLE,
+				CField.AUTHOR_ID,
+				CField.AUTHOR_IMAGE,
         CField.DESCRIPTION,
         CField.SUCCESSFUL_ATTEMPTS,
         CField.UNSUCCESSFUL_ATTEMPTS,

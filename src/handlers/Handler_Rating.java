@@ -2,6 +2,7 @@ package handlers;
 
 
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.json.JSONObject;
@@ -10,7 +11,6 @@ import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
-import zer.sql.SQLInjector;
 import zer.file.FType;
 
 import constants.CStatus;
@@ -33,7 +33,7 @@ import models.Model_Rating;
 public class Handler_Rating extends HTTPHandler
 {
   @Override
-  public void handle(HTTPRequest req, HTTPResponse res)
+  public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
   {
     res.headers().put("Content-Type", FType.JSON.mime());
     
@@ -47,10 +47,9 @@ public class Handler_Rating extends HTTPHandler
 
 
 
-    ArrayList<Model_Rating> darkSideRating = SQLInjector.<Model_Rating>inject(
-			Model_Rating.class,
-			new Action_GetRatingOfSide(CSide.DARK.ordinal())
-		);
+    ArrayList<Model_Rating> darkSideRating = new Action_GetRatingOfSide(
+			CSide.DARK.ordinal()
+		).result();
 
 		if (darkSideRating.size() > 0)
 			darkSideJSON = new JSONObject(darkSideRating.get(0), new String[] {
@@ -61,10 +60,9 @@ public class Handler_Rating extends HTTPHandler
 
 
 
-		ArrayList<Model_Rating> brightSideRating = SQLInjector.<Model_Rating>inject(
-			Model_Rating.class,
-			new Action_GetRatingOfSide(CSide.BRIGHT.ordinal())
-		);
+		ArrayList<Model_Rating> brightSideRating = new Action_GetRatingOfSide(
+			CSide.BRIGHT.ordinal()
+		).result();
 
 		if (brightSideRating.size() > 0)
 			brightSideJSON = new JSONObject(brightSideRating.get(0), new String[] {

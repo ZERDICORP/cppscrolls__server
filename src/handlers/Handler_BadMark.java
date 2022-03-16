@@ -2,11 +2,7 @@ package handlers;
 
 
 
-import java.util.UUID;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.sql.Timestamp;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.json.JSONObject;
@@ -17,8 +13,6 @@ import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
 import zer.file.FType;
-import zer.sql.SQLInjector;
-import zer.mail.MAILClient;
 
 import constants.CStatus;
 import constants.CField;
@@ -51,7 +45,7 @@ import tools.Token;
 public class Handler_BadMark extends HTTPHandler
 {
   @Override
-  public void handle(HTTPRequest req, HTTPResponse res)
+  public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
   {
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 		JSONObject preloadedUser = new JSONObject(req.headers().get("Preloaded-User"));
@@ -77,10 +71,10 @@ public class Handler_BadMark extends HTTPHandler
 
 
 
-		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollById(
+		ArrayList<Model_Scroll> scrolls = new Action_GetScrollById(
 			tokenPayload.getString(CField.UID),
 			reqBody.getString(CField.SCROLL_ID)
-		));
+		).result();
 		
 		if (scrolls.size() == 0)
 		{
@@ -91,7 +85,9 @@ public class Handler_BadMark extends HTTPHandler
 		}
 
 		Model_Scroll scroll = scrolls.get(0);
-	
+
+
+
 		if (scroll.visited == 0)
 		{
 			res.body(resBody
@@ -118,14 +114,12 @@ public class Handler_BadMark extends HTTPHandler
 			((scroll.bad_marks + 1) / ((float) scroll.views / 100)) > 50
 		)
 		{
-			SQLInjector.inject(new Action_UpdateUserScore(
+			new Action_UpdateUserScore(
 				tokenPayload.getString(CField.UID),
 				preloadedUser.getInt(CField.SCORE) - Const.POINTS_LOSS_FOR_BAD_SCROLL
-			));
+			);
 
-			SQLInjector.inject(new Action_ToggleScrollBadReputation(
-				reqBody.getString(CField.SCROLL_ID)
-			));
+			new Action_ToggleScrollBadReputation(reqBody.getString(CField.SCROLL_ID));
 		}
 
 
@@ -141,22 +135,22 @@ public class Handler_BadMark extends HTTPHandler
 			((scroll.bad_marks - 1) / ((float) scroll.views / 100)) <= 50
 		)
 		{
-			SQLInjector.inject(new Action_UpdateUserScore(
+			new Action_UpdateUserScore(
 				tokenPayload.getString(CField.UID),
 				preloadedUser.getInt(CField.SCORE) + Const.POINTS_LOSS_FOR_BAD_SCROLL
-			));
+			);
 
-			SQLInjector.inject(new Action_ToggleScrollBadReputation(
+			new Action_ToggleScrollBadReputation(
 				reqBody.getString(CField.SCROLL_ID)
-			));
+			);
 		}
 
 
 
-		SQLInjector.inject(new Action_ToggleBadMark(
+		new Action_ToggleBadMark(
 			reqBody.getString(CField.SCROLL_ID),
 			tokenPayload.getString(CField.UID)
-		));
+		);
 
 
 

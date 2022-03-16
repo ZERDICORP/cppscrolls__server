@@ -5,6 +5,7 @@ package handlers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.sql.SQLException;
 	
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -13,14 +14,12 @@ import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
-import zer.sql.SQLInjector;
 import zer.file.FType;
  
 import constants.CStatus;
 import constants.CField;
 import constants.CRegex;
 import constants.CMark;
-import constants.Const;
  
 import actions.Action_GetTopicsBySide;
  
@@ -37,7 +36,7 @@ import models.Model_Topic;
 public class Handler_GetTopics extends HTTPHandler
 {
 	@Override
-	public void handle(HTTPRequest req, HTTPResponse res)
+	public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
 	{
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 
@@ -47,11 +46,11 @@ public class Handler_GetTopics extends HTTPHandler
 
 
 
-		List<String> topics = SQLInjector.<Model_Topic>inject(Model_Topic.class, new Action_GetTopicsBySide(
+		List<String> topics = new Action_GetTopicsBySide(
 			req.pathInt(1),
-			Const.TOPICS_PAGE_SIZE,
-			Const.TOPICS_PAGE_SIZE * req.pathInt(2)
-		))
+			req.pathInt(2)
+		)
+			.result()
 			.stream()
 			.map(o -> o.name)
 			.collect(Collectors.toList());

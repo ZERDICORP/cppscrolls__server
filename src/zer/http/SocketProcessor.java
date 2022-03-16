@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 
 
 
@@ -47,7 +48,7 @@ class SocketProcessor extends HTTPConfig implements Runnable
 			return sb.toString();
 	}	
 
-	public HTTPResponse process() throws IOException
+	public HTTPResponse process() throws IOException, SQLException
 	{
 		HTTPResponse res = new HTTPResponse();
 
@@ -176,6 +177,10 @@ class SocketProcessor extends HTTPConfig implements Runnable
 		catch (IOException e)
 		{
 			Tools.log(LogMsg.CONNECTION_CLOSED);
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
 		}
 	}
 }

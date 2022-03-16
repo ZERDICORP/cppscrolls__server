@@ -4,9 +4,6 @@ package handlers;
 
 import java.util.UUID;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.sql.Timestamp;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.json.JSONObject;
@@ -17,8 +14,6 @@ import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
 import zer.file.FType;
-import zer.sql.SQLInjector;
-import zer.mail.MAILClient;
 
 import constants.CStatus;
 import constants.CField;
@@ -53,7 +48,7 @@ import tools.Token;
 public class Handler_UpdateScroll extends HTTPHandler
 {
   @Override
-  public void handle(HTTPRequest req, HTTPResponse res)
+  public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
   {
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 		JSONObject preloadedUser = new JSONObject(req.headers().get("Preloaded-User"));
@@ -65,10 +60,6 @@ public class Handler_UpdateScroll extends HTTPHandler
 		String bodyAsString = req.bodyAsString();
 
 
-
-    /*
-     * request body validation
-     */
 
     CStatus status = Validator_UpdateScroll.validate(bodyAsString);
     if (status != CStatus.OK)
@@ -83,12 +74,16 @@ public class Handler_UpdateScroll extends HTTPHandler
 
 
 
-		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollById(
+		ArrayList<Model_Scroll> scrolls = new Action_GetScrollById(
 			tokenPayload.getString(CField.UID),
 			reqBody.getString(CField.SCROLL_ID)
-		));
+		).result();
 
-		if (scrolls.size() == 0 || !scrolls.get(0).author_id.equals(tokenPayload.getString(CField.UID)))
+		if
+		(
+			scrolls.size() == 0 ||
+			!scrolls.get(0).author_id.equals(tokenPayload.getString(CField.UID))
+		)
 		{
 			res.body(resBody
         .put(CField.STATUS, CStatus.SCROLL_DOES_NOT_EXIST.ordinal())
@@ -98,13 +93,13 @@ public class Handler_UpdateScroll extends HTTPHandler
 
 
 
-		SQLInjector.inject(new Action_UpdateScrollById(
+		new Action_UpdateScrollById(
 			reqBody.getString(CField.SCROLL_ID),
 			reqBody.getString(CField.TITLE),
 			reqBody.getString(CField.DESCRIPTION),
 			reqBody.getString(CField.SCRIPT_FUNC),
 			reqBody.getString(CField.TEST_FUNC)
-		));
+		);
 
 
 
@@ -130,11 +125,11 @@ public class Handler_UpdateScroll extends HTTPHandler
 					preloadedUser.getInt(CField.SIDE)
 				);
 			
-			SQLInjector.inject(action_addTopics);
+			action_addTopics.exec();
 			
 
 
-			SQLInjector.inject(new Action_DeleteScroll_TopicByScrollId(reqBody.getString(CField.SCROLL_ID)));
+			new Action_DeleteScroll_TopicByScrollId(reqBody.getString(CField.SCROLL_ID));
 
 
 
@@ -153,7 +148,7 @@ public class Handler_UpdateScroll extends HTTPHandler
 			for (int i = 0; i < topics.length(); ++i)
 				action_addScroll_topic.add(topics.getString(i));
 
-			SQLInjector.inject(action_addScroll_topic);
+			action_addScroll_topic.exec();
 		}
 
 

@@ -3,6 +3,7 @@ package handlers;
 
 
 import java.util.ArrayList;
+import java.sql.SQLException;
 
 import org.json.JSONObject;
 
@@ -10,7 +11,6 @@ import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
-import zer.sql.SQLInjector;
 import zer.file.FType;
 
 import validators.Validator_Confirm;
@@ -37,7 +37,7 @@ import tools.Token;
 public class Handler_Confirm extends HTTPHandler
 {
   @Override
-  public void handle(HTTPRequest req, HTTPResponse res)
+  public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
   {
     res.headers().put("Content-Type", FType.JSON.mime());
     
@@ -46,9 +46,6 @@ public class Handler_Confirm extends HTTPHandler
 		String bodyAsString = req.bodyAsString();
 
 
-    /*
-     * request body validation
-     */
 
     CStatus status = Validator_Confirm.validate(req.bodyAsString());
     if (status != CStatus.OK)
@@ -63,13 +60,15 @@ public class Handler_Confirm extends HTTPHandler
 
 
 
-    /*
-     * checking for INVALID_TOKEN
-     *\
+    /*\
      * The variable "payload" stores the user ID.
      */
 
-    String payload = Token.access(reqBody.getString(CField.TOKEN), AppConfig.SECRET);
+    String payload = Token.access(
+			reqBody.getString(CField.TOKEN),
+			AppConfig.SECRET
+		);
+
     if (payload == null)
     {
       res.body(resBody
@@ -78,7 +77,12 @@ public class Handler_Confirm extends HTTPHandler
       return;
     }
 
-    ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(payload));
+
+
+    ArrayList<Model_User> users = new Action_GetUserById(
+			payload
+		).result();
+
     if (users.size() == 0 || users.get(0).confirmed == 1)
     {
       res.body(resBody
@@ -91,11 +95,7 @@ public class Handler_Confirm extends HTTPHandler
  
 
 
-    /*
-     * user confirmation
-     */
-
-    SQLInjector.inject(new Action_ConfirmUser(user.id));
+    new Action_ConfirmUser(user.id);
 
 
 

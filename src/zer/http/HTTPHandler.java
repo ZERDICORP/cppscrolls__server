@@ -2,11 +2,11 @@ package zer.http;
 
 
 
-import java.io.IOException;
+import java.sql.SQLException;
 
 
 
 public abstract class HTTPHandler
 {
-  public abstract void handle(HTTPRequest req, HTTPResponse res);
+  public abstract void handle(HTTPRequest req, HTTPResponse res) throws SQLException;
 }

@@ -10,7 +10,8 @@ public enum FType
   JS("text/javascript"),
   PNG("image/png"),
   ICO("image/x-icon"),
-	CPP("text/plain");
+	CPP("text/plain"),
+	JPG("image/jpg");
 
   String mime;
   

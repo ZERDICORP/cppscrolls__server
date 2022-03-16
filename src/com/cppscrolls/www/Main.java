@@ -5,7 +5,7 @@ package com.cppscrolls.www;
 import java.io.IOException;
 
 import zer.mail.MAILConfig;
-import zer.sql.SQLConfig;
+import zer.sql.SQLManager;
 import zer.http.HTTPConfig;
 import zer.http.HTTPServer;
 
@@ -53,8 +53,8 @@ public class Main
 
 
 
-		SQLConfig.auth(AppConfig.DATABASE_USER, AppConfig.DATABASE_PASSWORD);
-    SQLConfig.connect(AppConfig.SQL_DRIVER, AppConfig.SQL_CONNECTION_STRING);
+		SQLManager.auth(AppConfig.DATABASE_USER, AppConfig.DATABASE_PASSWORD);
+    SQLManager.connect(AppConfig.SQL_DRIVER, AppConfig.SQL_CONNECTION_STRING);
 
 
 

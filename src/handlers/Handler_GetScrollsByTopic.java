@@ -3,9 +3,7 @@ package handlers;
 
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Collections;
-import java.util.Comparator;
+import java.sql.SQLException;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -14,14 +12,12 @@ import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
-import zer.sql.SQLInjector;
 import zer.file.FType;
  
 import constants.CStatus;
 import constants.CField;
 import constants.CRegex;
 import constants.CMark;
-import constants.Const;
  
 import actions.Action_GetTopicBySideAndName;
 import actions.Action_IncTopicRequests;
@@ -41,7 +37,7 @@ import models.Model_Scroll;
 public class Handler_GetScrollsByTopic extends HTTPHandler
 {
 	@Override
-	public void handle(HTTPRequest req, HTTPResponse res)
+	public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
 	{
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 
@@ -51,10 +47,10 @@ public class Handler_GetScrollsByTopic extends HTTPHandler
 
 
 
-		ArrayList<Model_Topic> topics = SQLInjector.<Model_Topic>inject(Model_Topic.class, new Action_GetTopicBySideAndName(
+		ArrayList<Model_Topic> topics = new Action_GetTopicBySideAndName(
 			req.pathInt(1),
 			req.path(2)
-		));
+		).result();
 
 		if (topics.size() == 0)
 		{
@@ -68,15 +64,15 @@ public class Handler_GetScrollsByTopic extends HTTPHandler
 
 
 
-		SQLInjector.inject(new Action_IncTopicRequests(topic.id));
+		new Action_IncTopicRequests(topic.id);
 
 
 
-		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollsByTopicId(
+		ArrayList<Model_Scroll> scrolls = new Action_GetScrollsByTopicId(
 			tokenPayload.getString(CField.UID),
 			topic.id,
 			req.pathInt(3)
-		));
+		).result();
 
 
 
@@ -91,7 +87,9 @@ public class Handler_GetScrollsByTopic extends HTTPHandler
         CField.UNSUCCESSFUL_ATTEMPTS,
         CField.BAD_MARKS,
         CField.VIEWS,
-        CField.BAD_REPUTATION
+        CField.BAD_REPUTATION,
+				CField.AUTHOR_ID,
+				CField.AUTHOR_IMAGE
       }); 
           
       scrollJSON.put(CField.SOLVED, scroll.solution != null);

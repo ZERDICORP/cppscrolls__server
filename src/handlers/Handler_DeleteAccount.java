@@ -2,6 +2,7 @@ package handlers;
 
 
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.io.File;
 
@@ -11,8 +12,8 @@ import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
-import zer.sql.SQLInjector;
 import zer.file.FType;
+import zer.file.FTool;
  
 import validators.Validator_DeleteAccount;
 
@@ -43,7 +44,7 @@ import tools.Tools;
 public class Handler_DeleteAccount extends HTTPHandler
 {
   @Override
-  public void handle(HTTPRequest req, HTTPResponse res)
+  public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
   {
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 		JSONObject preloadedUser = new JSONObject(req.headers().get("Preloaded-User"));
@@ -55,10 +56,6 @@ public class Handler_DeleteAccount extends HTTPHandler
 		String bodyAsString = req.bodyAsString();
  
  
- 
-    /*
-     * request body validation
-     */
  
     CStatus status = Validator_DeleteAccount.validate(bodyAsString);
     if (status != CStatus.OK)
@@ -73,11 +70,10 @@ public class Handler_DeleteAccount extends HTTPHandler
 
 
 
-    /*
-     * checking for ACCESS_DENIED
-     */
-
-		if (!preloadedUser.getString(CField.PASSWORD_HASH).equals(Tools.sha256(reqBody.getString(CField.PASSWORD))))
+		if (
+			!preloadedUser.getString(CField.PASSWORD_HASH)
+				.equals(Tools.sha256(reqBody.getString(CField.PASSWORD)))
+		)
 		{
 			res.body(resBody
         .put(CField.STATUS, CStatus.ACCESS_DENIED.ordinal())
@@ -87,20 +83,16 @@ public class Handler_DeleteAccount extends HTTPHandler
 
 
 
-		SQLInjector.inject(new Action_DeleteUserById(tokenPayload.getString(CField.UID)));
+		new Action_DeleteUserById(tokenPayload.getString(CField.UID));
 
 
 
-		/*
-		 * removing user image
+		/*\
+		 * Removing user image.
 		 */
 
 		if (preloadedUser.has(CField.IMAGE))
-		{
-			File userImageFile = new File(AppConfig.IMAGES_FOLDER_PATH + preloadedUser.getString(CField.IMAGE));
-			if (userImageFile.exists())
-				userImageFile.delete();
-		}
+			FTool.delete(AppConfig.IMAGES_FOLDER_PATH + preloadedUser.getString(CField.IMAGE));
 
 
 

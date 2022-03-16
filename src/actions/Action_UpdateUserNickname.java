@@ -9,22 +9,24 @@ import zer.sql.SQLManager;
 
 
 
-public class Action_DeleteUserById extends SQLAction
+public class Action_UpdateUserNickname extends SQLAction
 {
 	int updated;
 
   {
     super.query(
-			"DELETE FROM users "
+			"UPDATE users SET "
+				+ "nickname = ? "
 			+ "WHERE id = ?"
 		);
   }
-  
-  public Action_DeleteUserById(String id) throws SQLException
+
+  public Action_UpdateUserNickname(String id, String nickname) throws SQLException
   {
 		ps = SQLManager.preparedStatement(query());
 
-    ps.setString(1, id);
+		ps.setString(1, nickname);
+    ps.setString(2, id);
 
 		updated = SQLManager.exec(ps);
   }

@@ -3,6 +3,7 @@ package handlers;
 
 
 import java.util.ArrayList;
+import java.sql.SQLException;
   
 import org.json.JSONObject;
   
@@ -10,7 +11,6 @@ import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
-import zer.sql.SQLInjector;
 import zer.file.FType;
 
 import validators.Validator_UpdateNickname;
@@ -20,7 +20,7 @@ import constants.CField;
 import constants.CMark;
  
 import actions.Action_GetUserByNickname;
-import actions.Action_UpdateUserNicknameById;
+import actions.Action_UpdateUserNickname;
  
 import models.Model_User;
 
@@ -35,7 +35,7 @@ import models.Model_User;
 public class Handler_UpdateNickname extends HTTPHandler
 {
 	@Override
-	public void handle(HTTPRequest req, HTTPResponse res)
+	public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
 	{
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 
@@ -46,10 +46,6 @@ public class Handler_UpdateNickname extends HTTPHandler
 		String bodyAsString = req.bodyAsString();
 
 
-
-		/*
-     * request body validation
-     */
 
     CStatus status = Validator_UpdateNickname.validate(bodyAsString);
     if (status != CStatus.OK)
@@ -64,11 +60,7 @@ public class Handler_UpdateNickname extends HTTPHandler
 
 
 
-    /*
-     * checking for NICKNAME_ALREADY_IN_USE
-     */
-
-    if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserByNickname(reqBody.getString(CField.NICKNAME))).size() > 0)
+    if (new Action_GetUserByNickname(reqBody.getString(CField.NICKNAME)).result().size() > 0)
     {
       res.body(resBody
         .put(CField.STATUS, CStatus.NICKNAME_ALREADY_IN_USE.ordinal())
@@ -78,7 +70,10 @@ public class Handler_UpdateNickname extends HTTPHandler
 
 
 
-		SQLInjector.inject(new Action_UpdateUserNicknameById(tokenPayload.getString(CField.UID), reqBody.getString(CField.NICKNAME)));
+		new Action_UpdateUserNickname(
+			tokenPayload.getString(CField.UID),
+			reqBody.getString(CField.NICKNAME)
+		);
 
 
 

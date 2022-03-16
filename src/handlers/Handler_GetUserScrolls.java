@@ -3,7 +3,8 @@ package handlers;
 
 
 import java.util.ArrayList;
-	
+import java.sql.SQLException;
+
 import org.json.JSONObject;
 import org.json.JSONArray;
 	
@@ -11,14 +12,12 @@ import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
-import zer.sql.SQLInjector;
 import zer.file.FType;
  
 import constants.CStatus;
 import constants.CField;
 import constants.CRegex;
 import constants.CMark;
-import constants.Const;
  
 import actions.Action_GetUserById;
 import actions.Action_GetScrollsByAuthorId;
@@ -37,7 +36,7 @@ import models.Model_Scroll;
 public class Handler_GetUserScrolls extends HTTPHandler
 {
 	@Override
-	public void handle(HTTPRequest req, HTTPResponse res)
+	public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
 	{
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 
@@ -49,9 +48,9 @@ public class Handler_GetUserScrolls extends HTTPHandler
 
 		if (!req.path(1).equals(tokenPayload.getString(CField.UID)))
 		{
-			ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(
+			ArrayList<Model_User> users = new Action_GetUserById(
 				req.path(1)
-			));
+			).result();
 
 			if (users.size() == 0)
 			{
@@ -71,11 +70,11 @@ public class Handler_GetUserScrolls extends HTTPHandler
 
 
 
-		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollsByAuthorId(
+		ArrayList<Model_Scroll> scrolls = new Action_GetScrollsByAuthorId(
 			tokenPayload.getString(CField.UID),
 			req.path(1),
 			req.pathInt(3)
-		));
+		).result();
 
 
 

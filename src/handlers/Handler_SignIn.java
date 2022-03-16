@@ -4,6 +4,7 @@ package handlers;
 
 import java.util.ArrayList;
 import java.sql.Timestamp;
+import java.sql.SQLException;
 
 import org.json.JSONObject;
 
@@ -11,7 +12,6 @@ import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
-import zer.sql.SQLInjector;
 import zer.file.FType;
  
 import validators.Validator_SignIn;
@@ -38,7 +38,7 @@ import tools.Tools;
 public class Handler_SignIn extends HTTPHandler
 {
   @Override
-  public void handle(HTTPRequest req, HTTPResponse res)
+  public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
   {   
     res.headers().put("Content-Type", FType.JSON.mime());
    
@@ -47,10 +47,6 @@ public class Handler_SignIn extends HTTPHandler
 		String bodyAsString = req.bodyAsString();
  
  
- 
-    /*
-     * request body validation
-     */
  
     CStatus status = Validator_SignIn.validate(bodyAsString);
     if (status != CStatus.OK)
@@ -65,12 +61,11 @@ public class Handler_SignIn extends HTTPHandler
 
 
 
-    /*
-     * checking for WRONG_LOGIN_OR_PASSWORD
-     */
+    ArrayList<Model_User> users = new Action_GetUserByLoginAndPasswordHash(
+			reqBody.getString(CField.LOGIN),
+			Tools.sha256(reqBody.getString(CField.PASSWORD))
+		).result();
 
-    ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class,
-      new Action_GetUserByLoginAndPasswordHash(reqBody.getString(CField.LOGIN), Tools.sha256(reqBody.getString(CField.PASSWORD))));
     if (users.size() == 0)
     {
       res.body(resBody
@@ -82,10 +77,6 @@ public class Handler_SignIn extends HTTPHandler
     Model_User user = users.get(0);
 
 
-
-    /*
-     * checking for USER_NOT_CONFIRMED
-     */
 
     if (user.confirmed == 0)
     {

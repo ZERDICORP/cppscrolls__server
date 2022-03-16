@@ -3,9 +3,7 @@ package handlers;
 
 
 import java.util.UUID;
-import java.util.ArrayList;
 import java.sql.Timestamp;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.json.JSONObject;
@@ -16,8 +14,6 @@ import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
 import zer.file.FType;
-import zer.sql.SQLInjector;
-import zer.mail.MAILClient;
 
 import constants.CStatus;
 import constants.CField;
@@ -27,7 +23,7 @@ import constants.CMark;
 import validators.Validator_CreateScroll;
 
 import actions.Action_AddScroll;
-import actions.Action_UpdateUserScoreAndScrollCreationTimeById;
+import actions.Action_UpdateUserScoreAndScrollCreationTime;
 import actions.Action_AddTopics;
 import actions.Action_AddScroll_Topic;
 import actions.Action_DeleteScroll_TopicByScrollId;
@@ -53,7 +49,7 @@ import tools.Token;
 public class Handler_CreateScroll extends HTTPHandler
 {
   @Override
-  public void handle(HTTPRequest req, HTTPResponse res)
+  public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
   {
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 		JSONObject preloadedUser = new JSONObject(req.headers().get("Preloaded-User"));
@@ -65,10 +61,6 @@ public class Handler_CreateScroll extends HTTPHandler
 		String bodyAsString = req.bodyAsString();
 
 
-
-    /*
-     * request body validation
-     */
 
     CStatus status = Validator_CreateScroll.validate(bodyAsString);
     if (status != CStatus.OK)
@@ -94,28 +86,31 @@ public class Handler_CreateScroll extends HTTPHandler
 		 * prevent spam.
 		 */
 
-		 if (preloadedUser.has(CField.SCROLL_CREATION_TIME) &&
-		 	Tools.hoursPassed(preloadedUser.getString(CField.SCROLL_CREATION_TIME)) <= Const.SCROLL_CREATION_TIMEOUT)
-		 {
-		 	res.body(resBody
-         .put(CField.STATUS, CStatus.SCROLL_CREATION_LIMIT.ordinal())
-         .toString());
-		 	return;
-		 }
+		if
+		(
+			preloadedUser.has(CField.SCROLL_CREATION_TIME) &&
+		 	Tools.hoursPassed(preloadedUser.getString(CField.SCROLL_CREATION_TIME)) <= Const.SCROLL_CREATION_TIMEOUT
+		)
+		{
+			res.body(resBody
+			.put(CField.STATUS, CStatus.SCROLL_CREATION_LIMIT.ordinal())
+			.toString());
+			return;
+		}
 
 
 
     String scroll_id = UUID.randomUUID().toString();
 
-		SQLInjector.inject(new Action_AddScroll(
+		new Action_AddScroll(
 			scroll_id,
 			tokenPayload.getString(CField.UID),
-			preloadedUser.getInt(CField.SIDE),
 			reqBody.getString(CField.TITLE),
 			reqBody.getString(CField.DESCRIPTION),
 			reqBody.getString(CField.SCRIPT_FUNC),
-			reqBody.getString(CField.TEST_FUNC)
-		));
+			reqBody.getString(CField.TEST_FUNC),
+			preloadedUser.getInt(CField.SIDE)
+		);
 
 
 
@@ -125,11 +120,11 @@ public class Handler_CreateScroll extends HTTPHandler
 		 * recorded.
 		 */
 
-		SQLInjector.inject(new Action_UpdateUserScoreAndScrollCreationTimeById(
+		new Action_UpdateUserScoreAndScrollCreationTime(
 			tokenPayload.getString(CField.UID),
 			preloadedUser.getInt(CField.SCORE) + Const.POINTS_FOR_SCROLL_CREATING,
 			new Timestamp(System.currentTimeMillis()).toString()
-		));
+		);
 
 
 
@@ -155,11 +150,11 @@ public class Handler_CreateScroll extends HTTPHandler
           preloadedUser.getInt(CField.SIDE)
         );  
    
-      SQLInjector.inject(action_addTopics);
-   
+      action_addTopics.exec();
  
  
-      SQLInjector.inject(new Action_DeleteScroll_TopicByScrollId(scroll_id));
+ 
+      new Action_DeleteScroll_TopicByScrollId(scroll_id);
 
 
 
@@ -178,12 +173,15 @@ public class Handler_CreateScroll extends HTTPHandler
       for (int i = 0; i < topics.length(); ++i)
         action_addScroll_topic.add(topics.getString(i));
 
-      SQLInjector.inject(action_addScroll_topic);
+      action_addScroll_topic.exec();
     }
 
 
 
-		SQLInjector.inject(new Action_AddUniqueScrollVisit(scroll_id, tokenPayload.getString(CField.UID)));
+		new Action_AddUniqueScrollVisit(
+			scroll_id,
+			tokenPayload.getString(CField.UID)
+		);
 
 
 

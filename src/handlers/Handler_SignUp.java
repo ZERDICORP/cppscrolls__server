@@ -2,6 +2,7 @@ package handlers;
 
 
 
+import java.sql.SQLException;
 import java.util.UUID;
 import java.util.ArrayList;
 
@@ -12,7 +13,6 @@ import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
 import zer.file.FType;
-import zer.sql.SQLInjector;
 import zer.mail.MAILClient;
 
 import validators.Validator_SignUp;
@@ -41,7 +41,7 @@ import tools.Token;
 public class Handler_SignUp extends HTTPHandler
 {
   @Override
-  public void handle(HTTPRequest req, HTTPResponse res)
+  public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
   {
     res.headers().put("Content-Type", FType.JSON.mime());
     
@@ -50,9 +50,6 @@ public class Handler_SignUp extends HTTPHandler
 		String bodyAsString = req.bodyAsString();
 
 
-    /*
-     * request body validation
-     */
 
     CStatus status = Validator_SignUp.validate(bodyAsString);
     if (status != CStatus.OK)
@@ -67,12 +64,8 @@ public class Handler_SignUp extends HTTPHandler
 
 
 
-    /*
-     * checking for USER_ALREADY_EXIST
-     */
- 
-    if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserByEmail(reqBody.getString(CField.EMAIL))).size() > 0)
-    {   
+    if (new Action_GetUserByEmail(reqBody.getString(CField.EMAIL)).result().size() > 0)
+    {
       res.body(resBody
         .put(CField.STATUS, CStatus.USER_ALREADY_EXIST.ordinal())
         .toString());
@@ -81,11 +74,7 @@ public class Handler_SignUp extends HTTPHandler
     
 
 
-    /*
-     * checking for NICKNAME_ALREADY_IN_USE
-     */
- 
-    if (SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserByNickname(reqBody.getString(CField.NICKNAME))).size() > 0)
+    if (new Action_GetUserByNickname(reqBody.getString(CField.NICKNAME)).result().size() > 0)
     {
       res.body(resBody
         .put(CField.STATUS, CStatus.NICKNAME_ALREADY_IN_USE.ordinal())
@@ -102,8 +91,13 @@ public class Handler_SignUp extends HTTPHandler
     String id = UUID.randomUUID().toString();
     String password_hash = Tools.sha256(reqBody.getString(CField.PASSWORD));
 
-    SQLInjector.inject(new Action_AddUser(id, password_hash,
-      reqBody.getString(CField.NICKNAME), reqBody.getString(CField.EMAIL), reqBody.getInt(CField.SIDE)));
+    new Action_AddUser(
+			id,
+			password_hash,
+			reqBody.getString(CField.NICKNAME),
+			reqBody.getString(CField.EMAIL),
+			reqBody.getInt(CField.SIDE)
+		);
 
 
 

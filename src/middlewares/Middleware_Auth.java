@@ -2,6 +2,7 @@ package middlewares;
 
 
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.ArrayList;
 
@@ -11,7 +12,6 @@ import zer.http.HTTPMiddleware;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
 import zer.http.HTTPRoute;
-import zer.sql.SQLInjector;
 import zer.file.FType;
 
 import configs.AppConfig;
@@ -34,7 +34,7 @@ import tools.Tools;
 public class Middleware_Auth extends HTTPMiddleware
 {
   @Override
-  public boolean process(HTTPRequest req, HTTPResponse res, HTTPRoute ann)
+  public boolean process(HTTPRequest req, HTTPResponse res, HTTPRoute ann) throws SQLException
   {
     if (!Arrays.stream(ann.marks()).anyMatch(s -> s.equals(CMark.WITH_AUTH_TOKEN)))
       return true;
@@ -76,10 +76,9 @@ public class Middleware_Auth extends HTTPMiddleware
 
 
 
-		ArrayList<Model_User> users = SQLInjector.<Model_User>inject(
-			Model_User.class,
-			new Action_GetUserById(tokenPayload.getString(CField.UID))
-		);	
+		ArrayList<Model_User> users = new Action_GetUserById(
+			tokenPayload.getString(CField.UID)
+		).result();
 
     if (users.size() == 0)
     {   
@@ -90,7 +89,7 @@ public class Middleware_Auth extends HTTPMiddleware
     }
 	
 		Model_User user = users.get(0);
-
+	
 
 
 		if (Arrays.stream(ann.marks()).anyMatch(s -> s.equals(CMark.WITH_PRELOADED_USER)))

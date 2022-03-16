@@ -2,11 +2,6 @@ package handlers;
 
 
 
-import java.util.UUID;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.sql.Timestamp;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.json.JSONObject;
@@ -17,8 +12,6 @@ import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
 import zer.file.FType;
-import zer.sql.SQLInjector;
-import zer.mail.MAILClient;
 
 import constants.CStatus;
 import constants.CField;
@@ -52,7 +45,7 @@ import tools.Token;
 public class Handler_DeleteScroll extends HTTPHandler
 {
   @Override
-  public void handle(HTTPRequest req, HTTPResponse res)
+  public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
   {
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 		JSONObject preloadedUser = new JSONObject(req.headers().get("Preloaded-User"));
@@ -64,10 +57,6 @@ public class Handler_DeleteScroll extends HTTPHandler
 		String bodyAsString = req.bodyAsString();
 
 
-
-    /*
-     * request body validation
-     */
 
     CStatus status = Validator_DeleteScroll.validate(bodyAsString);
     if (status != CStatus.OK)
@@ -94,12 +83,13 @@ public class Handler_DeleteScroll extends HTTPHandler
 		 * scroll does not match the user_id passed.
 		 */
 
-		SQLInjector.inject(new Action_DeleteScrollByScrollAndUserId(
-			reqBody.getString(CField.SCROLL_ID),
-			tokenPayload.getString(CField.UID)
-		));
-
-		if (SQLInjector.rowsUpdated() == 0)
+		if
+		(
+			new Action_DeleteScrollByScrollAndUserId(
+				reqBody.getString(CField.SCROLL_ID),
+				tokenPayload.getString(CField.UID)
+			).updated == 0
+		)
 		{
 			res.body(resBody
         .put(CField.STATUS, CStatus.SCROLL_DOES_NOT_EXIST.ordinal())
@@ -116,7 +106,7 @@ public class Handler_DeleteScroll extends HTTPHandler
 		 * the id of the removed scroll.
 		 */
 
-		SQLInjector.inject(new Action_DeleteScroll_TopicByScrollId(reqBody.getString(CField.SCROLL_ID)));
+		new Action_DeleteScroll_TopicByScrollId(reqBody.getString(CField.SCROLL_ID));
 
 
 
@@ -126,14 +116,14 @@ public class Handler_DeleteScroll extends HTTPHandler
 		 * the specified scroll_id.
 		 */
 
-		SQLInjector.inject(new Action_DeleteUniqueScrollVisitsByScrollId(reqBody.getString(CField.SCROLL_ID)));
+		new Action_DeleteUniqueScrollVisitsByScrollId(reqBody.getString(CField.SCROLL_ID));
 
 
 
-		SQLInjector.inject(new Action_UpdateUserScore(
+		new Action_UpdateUserScore(
 			tokenPayload.getString(CField.UID),
-			preloadedUser.getInt(CField.SCORE) - Const.POINTS_FOR_DELETING_SCROLL
-		));
+			preloadedUser.getInt(CField.SCORE) - Const.POINTS_FOR_SCROLL_CREATING
+		);
 
 
 

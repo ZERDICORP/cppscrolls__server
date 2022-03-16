@@ -2,13 +2,11 @@ package handlers;
 
 
 
-import java.util.UUID;
-import java.util.ArrayList;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.File;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -19,8 +17,6 @@ import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
 import zer.file.FType;
 import zer.file.FTool;
-import zer.sql.SQLInjector;
-import zer.mail.MAILClient;
 import zer.exec.EXECTask;
 import zer.exec.EXECResult;
 import zer.exec.EXECResultCode;
@@ -61,7 +57,7 @@ import tools.Token;
 public class Handler_SolveScroll extends HTTPHandler
 {
 	@Override
-	public void handle(HTTPRequest req, HTTPResponse res)
+	public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
 	{
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 		JSONObject preloadedUser = new JSONObject(req.headers().get("Preloaded-User"));
@@ -87,10 +83,10 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 
-		ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetScrollById(
+		ArrayList<Model_Scroll> scrolls = new Action_GetScrollById(
 			tokenPayload.getString(CField.UID),
 			reqBody.getString(CField.SCROLL_ID)
-		));
+		).result();
 
 		if (scrolls.size() == 0)
 		{
@@ -128,7 +124,7 @@ public class Handler_SolveScroll extends HTTPHandler
 
 		if (execResult.code() != EXECResultCode.OK)
 		{
-			SQLInjector.inject(new Action_IncScrollUnsuccessfulAttempts(scroll.id));
+			new Action_IncScrollUnsuccessfulAttempts(scroll.id);
 
 			res.body(resBody
 				.put(CField.STATUS, CStatus.OK.ordinal())
@@ -141,22 +137,22 @@ public class Handler_SolveScroll extends HTTPHandler
 
 	
 		if (scroll.solution == null)
-			SQLInjector.inject(new Action_UpdateUserScore(
+			new Action_UpdateUserScore(
 				tokenPayload.getString(CField.UID),
 				preloadedUser.getInt(CField.SCORE) + Const.POINTS_FOR_SOLVING_SCROLL
-			));
+			);
 
 
 
-		SQLInjector.inject(new Action_UpdateSolution(
+		new Action_UpdateSolution(
 			scroll.id,
 			tokenPayload.getString(CField.UID),
 			reqBody.getString(CField.SOLUTION)
-		));
+		);
 
 
 
-		SQLInjector.inject(new Action_IncScrollSuccessfulAttempts(scroll.id));
+		new Action_IncScrollSuccessfulAttempts(scroll.id);
 
 
 
@@ -166,6 +162,5 @@ public class Handler_SolveScroll extends HTTPHandler
 			.put(CField.OUTPUT, execResult.message())
 			.put(CField.TIME, execResult.time())
 			.toString());
-
 	}
 }

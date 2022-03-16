@@ -3,6 +3,7 @@ package handlers;
 
 
 import java.util.ArrayList;
+import java.sql.SQLException;
   
 import org.json.JSONObject;
   
@@ -10,7 +11,6 @@ import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
-import zer.sql.SQLInjector;
 import zer.file.FType;
  
 import constants.CStatus;
@@ -37,7 +37,7 @@ import models.Model_User;
 public class Handler_GetUser extends HTTPHandler
 {
 	@Override
-	public void handle(HTTPRequest req, HTTPResponse res)
+	public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
 	{
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 		JSONObject preloadedUser = new JSONObject(req.headers().get("Preloaded-User"));
@@ -79,10 +79,9 @@ public class Handler_GetUser extends HTTPHandler
      * checking for USER_DOES_NOT_EXIST
      */
 
-		ArrayList<Model_User> users = SQLInjector.<Model_User>inject(
-			Model_User.class,
-			new Action_GetUserById(req.path(1))
-		);
+		ArrayList<Model_User> users = new Action_GetUserById(
+			req.path(1)
+		).result();
 
     if (users.size() == 0)
     {   

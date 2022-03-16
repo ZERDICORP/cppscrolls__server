@@ -2,6 +2,7 @@ package handlers;
   
   
   
+import java.sql.SQLException;
 import java.util.ArrayList;
   
 import org.json.JSONObject;
@@ -10,7 +11,6 @@ import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
-import zer.sql.SQLInjector;
 import zer.file.FType;
  
 import constants.CStatus;
@@ -33,7 +33,7 @@ import models.Model_Scroll;
 public class Handler_GetRandomScroll extends HTTPHandler
 {
   @Override
-  public void handle(HTTPRequest req, HTTPResponse res)
+  public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
   {
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 
@@ -43,10 +43,10 @@ public class Handler_GetRandomScroll extends HTTPHandler
 
 
 
-    ArrayList<Model_Scroll> scrolls = SQLInjector.<Model_Scroll>inject(Model_Scroll.class, new Action_GetRandomScroll(
+    ArrayList<Model_Scroll> scrolls = new Action_GetRandomScroll(
 			tokenPayload.getString(CField.UID),
 			req.pathInt(0)
-		));
+		).result();
 
 		if (scrolls.size() == 0)
     {   

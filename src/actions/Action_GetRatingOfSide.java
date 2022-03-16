@@ -2,7 +2,13 @@ package actions;
  
  
  
+import java.sql.SQLException;
+import java.util.ArrayList;
+
 import zer.sql.SQLAction;
+import zer.sql.SQLManager;
+
+import models.Model_Rating;
 
 
 
@@ -23,8 +29,15 @@ public class Action_GetRatingOfSide extends SQLAction
     );
   }
 
-  public Action_GetRatingOfSide(int side)
+  public Action_GetRatingOfSide(int side) throws SQLException
   {
-    put(side);
+		ps = SQLManager.preparedStatement(query());
+
+    ps.setInt(1, side);
   }
+
+	public ArrayList<Model_Rating> result() throws SQLException
+	{
+		return SQLManager.<Model_Rating>exec(Model_Rating.class, ps);
+	}
 }

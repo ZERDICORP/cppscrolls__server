@@ -2,7 +2,13 @@ package actions;
  
  
  
+import java.util.ArrayList;
+import java.sql.SQLException;
+
 import zer.sql.SQLAction;
+import zer.sql.SQLManager;
+
+import models.Model_Scroll;
  
   
   
@@ -19,13 +25,19 @@ public class ActionTemplate_GetScroll extends SQLAction
         + "COUNT(CASE WHEN usv.bad_mark = true THEN 1 END) as bad_marks,"
         + "COUNT(CASE WHEN usv.bad_mark = true AND usv.user_id = ? THEN 1 END) > 0 as bad_mark,"
         + "COUNT(CASE WHEN usv.user_id = ? THEN 1 END) > 0 as visited "
-			+ "?"
+			+ "{sql}"
     );  
 	} 
   
-  public ActionTemplate_GetScroll(String user_id, String sqlCode)
+  public ActionTemplate_GetScroll(String sql) throws SQLException
   {
-		put(user_id, 2);
-    putSQL(sqlCode);
-  }   
+		put(sql);	
+
+		ps = SQLManager.preparedStatement(query());
+  }
+
+	public ArrayList<Model_Scroll> result() throws SQLException
+	{
+		return SQLManager.<Model_Scroll>exec(Model_Scroll.class, ps);
+	}	
 }

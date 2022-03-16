@@ -2,6 +2,7 @@ package handlers;
 
 
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.io.OutputStream;
 import java.io.FileOutputStream;
@@ -14,7 +15,6 @@ import zer.http.HTTPHandler;
 import zer.http.HTTPRoute;
 import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
-import zer.sql.SQLInjector;
 import zer.file.FType;
 
 import validators.Validator_UpdateNickname;
@@ -26,7 +26,7 @@ import constants.CField;
 import constants.CMark;
  
 import actions.Action_GetUserById;
-import actions.Action_UpdateUserImageById;
+import actions.Action_UpdateUserImage;
  
 import models.Model_User;
 
@@ -43,7 +43,7 @@ import tools.Tools;
 public class Handler_UpdateImage extends HTTPHandler
 {
 	@Override
-	public void handle(HTTPRequest req, HTTPResponse res)
+	public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
 	{
 		JSONObject tokenPayload = new JSONObject(req.headers().get("Authentication-Token-Payload"));
 
@@ -53,11 +53,10 @@ public class Handler_UpdateImage extends HTTPHandler
 
 
 
-		/*
-     * checking for USER_DOES_NOT_EXIST
-     */
+    ArrayList<Model_User> users = new Action_GetUserById(
+			tokenPayload.getString(CField.UID)
+		).result();
 
-    ArrayList<Model_User> users = SQLInjector.<Model_User>inject(Model_User.class, new Action_GetUserById(tokenPayload.getString(CField.UID)));
     if (users.size() == 0)
     {
       res.body(resBody
@@ -70,24 +69,33 @@ public class Handler_UpdateImage extends HTTPHandler
 
 
 
-		/*
-		 * if user have default image, we generate
-		 * new image name and change image of the user
-		 */
-
 		String imageFileName = user.image;
 		if (imageFileName == null)
 		{
-			imageFileName = user.nickname + ".jpg";
-			SQLInjector.inject(new Action_UpdateUserImageById(tokenPayload.getString(CField.UID), imageFileName));
+			imageFileName = user.nickname + "." + FType.JPG;
+
+			new Action_UpdateUserImage(
+				tokenPayload.getString(CField.UID),
+				imageFileName
+			);
 		}
 
 
 
-		/*
-		 * write image to file called {imageFileName}.jpg
-		 */
+		if (req.body().length == 0)
+		{
+			res.body(resBody
+        .put(CField.STATUS, CStatus.EMPTY_IMAGE_DATA.ordinal())
+        .toString());
+      return;
+		}
 
+
+
+		/*\
+		 * Write image data to the file.
+		 */
+	
 		try
 		{
 			OutputStream os = new FileOutputStream(AppConfig.IMAGES_FOLDER_PATH + imageFileName);
