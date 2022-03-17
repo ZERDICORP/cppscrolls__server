@@ -15,7 +15,7 @@ public class HTTPResponse extends HTTPMessage
 	{
 		startLine(HTTPStatus.OK);
 	}
-	
+
 	public void body(String s) { body = s.getBytes(); }
 	public HTTPResponse status(String startLine) { this.startLine(startLine); return this; }
 
