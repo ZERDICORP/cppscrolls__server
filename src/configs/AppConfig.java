@@ -9,7 +9,6 @@ public class AppConfig
 	public static String SECRET;
 	public static String IMAGES_FOLDER_PATH;
 	public static String SOLUTIONS_FOLDER_PATH;
-	public static String BASE_CPP_FILE_PATH;
 	public static String EMAIL_SENDER;
 	public static String EMAIL_SENDER_PASSWORD;
 	public static String DATABASE_USER;
