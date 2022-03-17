@@ -1,1 +1,15 @@
-jar -cfe ../build/cpplord__server.jar ru.cpplord.www.Main .
+javac -cp lib/*:. com/cppscrolls/www/Main.java
+
+mkdir -p ../build
+
+jar -cfe ../build/cppscrolls__server.jar com.cppscrolls__server.www.Main .
+
+mkdir -p ../build/lib ../build/resources ../build/solutions ../build/images
+
+cp -a lib/. ../build/lib
+cp -a resources/. ../build/resources
+cp -a solutions/. ../build/solutions
+cp -a images/. ../build/images
+
+echo "java -cp cppscrolls__server.jar:lib/* com.cppscrolls.www.Main" > ../build/run
+chmod +x ../build/run

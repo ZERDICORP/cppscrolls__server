@@ -1,5 +1,8 @@
 *.class
 
+build/*
+!build/run
+
 src/images/*.jpg
 
 src/solutions/*
