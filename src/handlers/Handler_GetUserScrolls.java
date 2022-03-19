@@ -18,6 +18,7 @@ import constants.CStatus;
 import constants.CField;
 import constants.CRegex;
 import constants.CMark;
+import constants.Const;
  
 import actions.Action_GetUserById;
 import actions.Action_GetScrollsByAuthorId;
@@ -92,6 +93,12 @@ public class Handler_GetUserScrolls extends HTTPHandler
 				CField.BAD_REPUTATION
 			});
 			
+			if (scroll.description.length() >= Const.DESCRIPTION_PREVIEW_LENGTH)
+				scrollJSON.put(
+					CField.DESCRIPTION,
+					scroll.description.toString().substring(0, Const.DESCRIPTION_PREVIEW_LENGTH)
+				);
+
 			scrollJSON.put(CField.SOLVED, scroll.solution != null);
 
 			scrollsJSON.put(scrollJSON);

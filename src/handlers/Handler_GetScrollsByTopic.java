@@ -18,6 +18,7 @@ import constants.CStatus;
 import constants.CField;
 import constants.CRegex;
 import constants.CMark;
+import constants.Const;
  
 import actions.Action_GetTopicBySideAndName;
 import actions.Action_IncTopicRequests;
@@ -78,7 +79,7 @@ public class Handler_GetScrollsByTopic extends HTTPHandler
 
 		JSONArray scrollsJSON = new JSONArray();
     for (Model_Scroll scroll : scrolls)
-    {   
+    {
       JSONObject scrollJSON = new JSONObject(scroll, new String[] {
         CField.ID,
         CField.TITLE,
@@ -91,7 +92,13 @@ public class Handler_GetScrollsByTopic extends HTTPHandler
 				CField.AUTHOR_ID,
 				CField.AUTHOR_IMAGE
       }); 
-          
+     
+			if (scroll.description.length() >= Const.DESCRIPTION_PREVIEW_LENGTH)
+        scrollJSON.put(
+          CField.DESCRIPTION,
+          scroll.description.toString().substring(0, Const.DESCRIPTION_PREVIEW_LENGTH)
+        );
+
       scrollJSON.put(CField.SOLVED, scroll.solution != null);
   
       scrollsJSON.put(scrollJSON);

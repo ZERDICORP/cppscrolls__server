@@ -45,7 +45,12 @@ public class SQLManager
 	 * Wake up the connection if it is closed.
 	 */
 
-	private static void wakeup() throws SQLException { connection.createStatement().execute("SELECT 1"); }	
+	private static void wakeup() throws SQLException
+	{
+		PreparedStatement ps = preparedStatement("SELECT ?");
+		ps.setInt(1, 1);
+		ps.executeQuery();
+	}	
 
 	public static int exec(PreparedStatement ps) throws SQLException
   { 

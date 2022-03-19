@@ -4,6 +4,7 @@ package constants;
 
 public interface Const
 {
+	int DESCRIPTION_PREVIEW_LENGTH = 100;
 	int TOKEN_EXPIRATION_DAYS = 15;
 	int POINTS_FOR_SCROLL_CREATING = 5;
 	int POINTS_FOR_SOLVING_SCROLL = 1;
