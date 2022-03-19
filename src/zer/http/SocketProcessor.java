@@ -67,53 +67,46 @@ class SocketProcessor extends HTTPConfig implements Runnable
 			return null;
 
 
+
 		/*
 		 * if content-length exists, we need to fill bodyBuffer
 		 */
 		
-		try
+		if (req.headers().get("Content-Length") != null)
 		{
-			if (req.headers().get("Content-Length") != null)
-			{
-				/*
-				 * validate bodySize
-				 */
+			/*
+			 * validate bodySize
+			 */
 
-				int bodySize = Integer.parseInt(req.headers().get("Content-Length"));
-				if (bodySize > 265000)
-					return res.status(HTTPStatus.PAYLOAD_TOO_LARGE);
+			int bodySize = Integer.parseInt(req.headers().get("Content-Length"));
+			if (bodySize > 265000)
+				return res.status(HTTPStatus.PAYLOAD_TOO_LARGE);
 
-				bodyBuffer = new byte[bodySize];
-				
-
-
-				/*
-				 * copying body bytes from firstSegmentBuffer to bodyBuffer
-				 */
-				
-				int bodyBytesLengthInFirstSegment = firstSegmentSize - (headersSize + 2);
-				for (int i = 0; i < bodyBytesLengthInFirstSegment; ++i)
-						bodyBuffer[i] = firstSegmentBuffer[i + (headersSize + 2)];
+			bodyBuffer = new byte[bodySize];
 
 
 
-				/*
-				 * receiving remaining segments
-				 */
+			/*
+			 * copying body bytes from firstSegmentBuffer to bodyBuffer
+			 */
+			
+			int bodyBytesLengthInFirstSegment = firstSegmentSize - (headersSize + 2);
+			for (int i = 0; i < bodyBytesLengthInFirstSegment && i < bodyBuffer.length; ++i)
+					bodyBuffer[i] = firstSegmentBuffer[i + (headersSize + 2)];
 
-				int offset = bodyBytesLengthInFirstSegment;
-				int segmentSize = -1;
 
-				while (offset < bodySize && (segmentSize = inStream.read(bodyBuffer, offset, bodyBuffer.length - offset)) > 0)
-					offset += segmentSize;
-				
-				req.body(bodyBuffer);
-			}
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			System.out.println(new String(firstSegmentBuffer, 0, firstSegmentSize, StandardCharsets.UTF_8));
-			e.printStackTrace();
+
+			/*
+			 * receiving remaining segments
+			 */
+
+			int offset = bodyBytesLengthInFirstSegment;
+			int segmentSize = -1;
+
+			while (offset < bodySize && (segmentSize = inStream.read(bodyBuffer, offset, bodyBuffer.length - offset)) > 0)
+				offset += segmentSize;
+			
+			req.body(bodyBuffer);
 		}
 
 
