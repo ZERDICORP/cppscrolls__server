@@ -66,6 +66,25 @@ public class Handler_SolveScroll extends HTTPHandler
 		
 		JSONObject resBody = new JSONObject();
 
+
+
+		/*\
+		 * If the solution file exists, it means that the Docker
+		 * container is already running by another process.
+		 */
+
+		String solutionFilePath = AppConfig.SOLUTIONS_FOLDER_PATH + preloadedUser.getString(CField.NICKNAME) + ".cpp";
+
+		if (FTool.exists(solutionFilePath))
+		{
+			res.body(resBody
+				.put(CField.STATUS, CStatus.PROGRAM_IS_ALREADY_RUNNING.ordinal())
+				.toString());
+			return;
+		}
+
+
+
 		String bodyAsString = req.bodyAsString();
 
 
@@ -99,8 +118,6 @@ public class Handler_SolveScroll extends HTTPHandler
 		Model_Scroll scroll = scrolls.get(0);
 
 
-
-		String solutionFilePath = AppConfig.SOLUTIONS_FOLDER_PATH + preloadedUser.getString(CField.NICKNAME) + ".cpp";
 
 		try
 		{
