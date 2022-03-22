@@ -45,21 +45,31 @@ public class SQLManager
 	 * Wake up the connection if it is closed.
 	 */
 
-	private static void wakeup() throws SQLException
+	private static void wakeup()
 	{
-		PreparedStatement ps = preparedStatement("SELECT ?");
-		ps.setInt(1, 1);
-		ps.executeQuery();
+		try
+		{
+			PreparedStatement ps = preparedStatement("SELECT ?");
+			ps.setInt(1, 1);
+			ps.executeQuery();
+		}
+		catch (SQLException e)
+		{
+			System.out.println("[sql:warn] Connection stale.. reconnecting");
+		}
 	}	
 
 	public static int exec(PreparedStatement ps) throws SQLException
   { 
 		wakeup();
+
 		return ps.executeUpdate();
   }
 
 	public static <TModel extends SQLModel> ArrayList<TModel> exec(Class<TModel> modelClazz, PreparedStatement ps) throws SQLException
   {
+		wakeup();
+
     try 
     {
       ArrayList<TModel> resultArray = new ArrayList<TModel>();
