@@ -11,6 +11,7 @@ import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLNonTransientConnectionException;
 
 
 
@@ -18,6 +19,8 @@ public class SQLManager
 {
 	private static String user;
 	private static String password;
+	private static String jdbcDriver;
+	private static String connectionString;
 	private static Connection connection; 
 
 	public static void auth(String u, String p)
@@ -26,11 +29,14 @@ public class SQLManager
 		password = p;
 	}
 
-	public static void connect(String jdbc_driver, String connectionString)
+	public static void connect(String jd, String cs)
 	{
+		jdbcDriver = jd;
+		connectionString = cs;
+
 		try
 		{
-			Class.forName(jdbc_driver);
+			Class.forName(jdbcDriver);
 			connection = DriverManager.getConnection(connectionString, user, password);
 		}
 		catch (SQLException | ClassNotFoundException e) { e.printStackTrace(); }
@@ -53,9 +59,19 @@ public class SQLManager
 			ps.setInt(1, 1);
 			ps.executeQuery();
 		}
-		catch (SQLException e)
+		catch (SQLException ex)
 		{
 			System.out.println("[sql:warn] Connection stale.. reconnecting");
+
+			try
+			{
+				connection = DriverManager.getConnection(connectionString, user, password);
+			}
+			catch (SQLException e)
+			{
+				System.out.println("Can't connect to SQL server: ");
+				e.printStackTrace();
+			}
 		}
 	}	
 
