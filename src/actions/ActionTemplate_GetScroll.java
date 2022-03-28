@@ -20,7 +20,7 @@ public class ActionTemplate_GetScroll extends SQLAction
         + "s.*,"
         + "u.id AS author_id,"
         + "u.image AS author_image,"
-				+ "usv.solution,"
+				+ "(SELECT solution FROM unique_scroll_visits WHERE scroll_id = s.id AND user_id = ?) as solution,"
         + "COUNT(usv.scroll_id) as views,"
         + "COUNT(CASE WHEN usv.bad_mark = true THEN 1 END) as bad_marks,"
         + "COUNT(CASE WHEN usv.bad_mark = true AND usv.user_id = ? THEN 1 END) > 0 as bad_mark,"

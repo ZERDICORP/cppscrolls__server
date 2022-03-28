@@ -18,8 +18,9 @@ public class Action_GetScrollById extends ActionTemplate_GetScroll
 			+ "GROUP BY usv.scroll_id"
 		);
 
-    ps.setString(1, user_id);
-		ps.setString(2, user_id);
-		ps.setString(3, id);
+		ps.setString(1, user_id);
+    ps.setString(2, user_id);
+		ps.setString(3, user_id);
+		ps.setString(4, id);
   }
 }

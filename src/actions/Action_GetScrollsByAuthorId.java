@@ -23,8 +23,9 @@ public class Action_GetScrollsByAuthorId extends ActionTemplate_GetScroll
 		
 		ps.setString(1, user_id);
 		ps.setString(2, user_id);
-		ps.setString(3, author_id);
-		ps.setInt(4, Const.SCROLLS_PAGE_SIZE);
-		ps.setInt(5, Const.SCROLLS_PAGE_SIZE * page);
+		ps.setString(3, user_id);
+		ps.setString(4, author_id);
+		ps.setInt(5, Const.SCROLLS_PAGE_SIZE);
+		ps.setInt(6, Const.SCROLLS_PAGE_SIZE * page);
   }
 }
