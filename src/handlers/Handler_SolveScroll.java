@@ -119,6 +119,16 @@ public class Handler_SolveScroll extends HTTPHandler
 
 
 
+		if (scroll.visited == 0)
+    {
+      res.body(resBody
+        .put(CField.STATUS, CStatus.SCROLL_HAS_NOT_BEEN_VISITED.ordinal())
+        .toString());
+      return;
+    }
+
+
+
 		try
 		{
 			OutputStream os = new FileOutputStream(solutionFilePath);
@@ -152,8 +162,12 @@ public class Handler_SolveScroll extends HTTPHandler
 		}
 
 
-	
-		if (scroll.solution == null)
+
+		if
+		(
+			scroll.solution == null &&
+			scroll.side == preloadedUser.getInt(CField.SIDE)
+		)
 			new Action_UpdateUserScore(
 				tokenPayload.getString(CField.UID),
 				preloadedUser.getInt(CField.SCORE) + Const.POINTS_FOR_SOLVING_SCROLL
