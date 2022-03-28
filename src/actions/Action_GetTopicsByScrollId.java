@@ -17,10 +17,10 @@ public class Action_GetTopicsByScrollId extends SQLAction
   {
     super.query(
 			"SELECT "
-				+ "topics.* "
-			+ "FROM topics "
-				+ "INNER JOIN scroll_topic ON topic_id = id "
-			+ "WHERE scroll_id = ?"
+				+ "t.* "
+			+ "FROM topics t "
+				+ "LEFT JOIN scroll_topic st ON st.topic_id = t.id "
+			+ "WHERE st.scroll_id = ?"
 		);
   }
 

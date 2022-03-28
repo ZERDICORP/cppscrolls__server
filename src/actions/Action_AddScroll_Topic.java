@@ -22,7 +22,7 @@ public class Action_AddScroll_Topic extends SQLAction
 				+ "id "
 			+ "FROM topics "
 			+ "WHERE "
-				+ "side = ? AND "
+				+ "side = ? AND ("
 				+ "name = ?"
 		);
   }
@@ -31,6 +31,7 @@ public class Action_AddScroll_Topic extends SQLAction
 	{
 		for (int i = 1; i < quantity; ++i)
 			super.query(super.query() + " OR name = ?");
+		super.query(super.query() + ")");
 
 		ps = SQLManager.preparedStatement(query());
 
