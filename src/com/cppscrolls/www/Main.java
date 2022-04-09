@@ -3,6 +3,7 @@ package com.cppscrolls.www;
 
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import zer.mail.MAILConfig;
 import zer.sql.SQLManager;
@@ -54,7 +55,17 @@ public class Main
 
 
 		SQLManager.auth(AppConfig.DATABASE_USER, AppConfig.DATABASE_PASSWORD);
-    SQLManager.connect(AppConfig.SQL_DRIVER, AppConfig.SQL_CONNECTION_STRING);
+
+		try
+		{
+			SQLManager.connect(AppConfig.SQL_DRIVER, AppConfig.SQL_CONNECTION_STRING);
+		}
+		catch (SQLException | ClassNotFoundException e)
+		{
+			System.out.println("Can't connect to sql server..");
+      e.printStackTrace();
+			return;
+		}
 
 
 
@@ -94,6 +105,7 @@ public class Main
 		}
 		catch (IOException e)
 		{
+			System.out.println("Server down..");
 			e.printStackTrace();
 		}
   }

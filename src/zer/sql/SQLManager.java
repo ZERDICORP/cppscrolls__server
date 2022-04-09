@@ -28,22 +28,14 @@ public class SQLManager
 		password = p;
 	}
 
-	public static void connect(String jd, String cs)
+	public static void connect(String jd, String cs) throws SQLException, ClassNotFoundException
 	{
 		jdbcDriver = jd;
 		connectionString = cs;
 
-		try
-		{
-			Class.forName(jdbcDriver);
+		Class.forName(jdbcDriver);
 
-			getConnection();
-		}
-		catch (SQLException | ClassNotFoundException e)
-		{
-			System.out.println("[sql:warn] Can't connect to sql server..");
-			e.printStackTrace();
-		}
+		getConnection();
 	}
 
 	public static PreparedStatement preparedStatement(String sql) throws SQLException
