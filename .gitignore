@@ -1,10 +1,8 @@
 *.class
-  
+
 build/
-  
-src/resources/*.cfg
-  
+
 src/images/*.jpg
-  
+
 src/solutions/*
 !solutions/.gitkeep
