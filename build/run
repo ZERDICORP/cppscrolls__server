@@ -1,1 +1,0 @@
-java -cp cppscrolls__server.jar:lib/* com.cppscrolls.www.Main
