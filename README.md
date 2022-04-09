@@ -1,6 +1,6 @@
-# cppscrolls__server
+# cppscrolls__server :star2:
 #### A platform where you can solve problems in C++, as well as create your own ([client](https://github.com/ZERDICORP/cppscrolls__client)).
-## Deployment Guide
+## Deployment Guide :speaker:
 > All work will be done on arch linux.
 #### 1. Clone the repository
 ```
