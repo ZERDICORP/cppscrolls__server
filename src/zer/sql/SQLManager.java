@@ -58,10 +58,6 @@ public class SQLManager
 		connection = DriverManager.getConnection(connectionString, user, password);
 	}
 
-	/*
-	 * Wake up the connection if it is closed.
-	 */
-
 	private static void reconnect()
 	{
 		System.out.println("[sql:warn] Connection stale.. reconnecting");
@@ -76,6 +72,10 @@ public class SQLManager
 			e.printStackTrace();
 		}
 	}
+
+	/*
+	 * Wake up the connection if it is closed.
+	 */
 
 	private static void wakeup()
 	{
