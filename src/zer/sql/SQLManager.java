@@ -11,7 +11,6 @@ import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLNonTransientConnectionException;
 
 
 
@@ -37,55 +36,66 @@ public class SQLManager
 		try
 		{
 			Class.forName(jdbcDriver);
-			connection = DriverManager.getConnection(connectionString, user, password);
+
+			getConnection();
 		}
-		catch (SQLException | ClassNotFoundException e) { e.printStackTrace(); }
+		catch (SQLException | ClassNotFoundException e)
+		{
+			System.out.println("[sql:warn] Can't connect to sql server..");
+			e.printStackTrace();
+		}
 	}
 
 	public static PreparedStatement preparedStatement(String sql) throws SQLException
 	{
+		wakeup();
+
 		return connection.prepareStatement(sql);
 	}
 	
+	private static void getConnection() throws SQLException
+	{
+		connection = DriverManager.getConnection(connectionString, user, password);
+	}
+
 	/*
 	 * Wake up the connection if it is closed.
 	 */
+
+	private static void reconnect()
+	{
+		System.out.println("[sql:warn] Connection stale.. reconnecting");
+		
+		try
+		{
+			getConnection();
+		}
+		catch (SQLException e)
+		{
+			System.out.println("[sql:warn] Can't reconnect to sql server..");
+			e.printStackTrace();
+		}
+	}
 
 	private static void wakeup()
 	{
 		try
 		{
-			PreparedStatement ps = preparedStatement("SELECT ?");
-			ps.setInt(1, 1);
-			ps.executeQuery();
+			connection.createStatement().executeQuery("SELECT 1");
 		}
-		catch (SQLException ex)
+		catch (SQLException e)
 		{
-			System.out.println("[sql:warn] Connection stale.. reconnecting");
-
-			try
-			{
-				connection = DriverManager.getConnection(connectionString, user, password);
-			}
-			catch (SQLException e)
-			{
-				System.out.println("Can't connect to SQL server: ");
-				e.printStackTrace();
-			}
+			reconnect();
 		}
-	}	
+	}
 
 	public static int exec(PreparedStatement ps) throws SQLException
   { 
-		wakeup();
-
 		return ps.executeUpdate();
   }
 
 	public static <TModel extends SQLModel> ArrayList<TModel> exec(Class<TModel> modelClazz, PreparedStatement ps) throws SQLException
   {
-		wakeup();
-
     try 
     {
       ArrayList<TModel> resultArray = new ArrayList<TModel>();
