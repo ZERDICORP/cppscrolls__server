@@ -1,9 +1,10 @@
 *.class
-
-build/*
-!build/run
-
+  
+build/
+  
+src/resources/*.cfg
+  
 src/images/*.jpg
-
+  
 src/solutions/*
-!solutions/.gitkeep 
+!solutions/.gitkeep
