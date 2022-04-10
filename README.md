@@ -54,7 +54,7 @@ user <user>;
 worker_processes 1;
 
 events {
-  worker_connections  1024;
+  worker_connections 1024;
 }
 
 http {
