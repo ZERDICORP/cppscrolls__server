@@ -4,5 +4,7 @@ build/
 
 src/images/*.jpg
 
+src/resources/*.cfg
+
 src/solutions/*
 !solutions/.gitkeep

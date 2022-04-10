@@ -70,6 +70,7 @@ public class Main
 
 
 		HTTPConfig.apiPrefix(AppConfig.API_PREFIX);
+		HTTPConfig.port(AppConfig.PORT);
 
     HTTPServer server = new HTTPServer();
 
