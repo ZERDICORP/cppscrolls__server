@@ -26,15 +26,58 @@ mariadb  Ver 15.1 Distrib 10.7.3-MariaDB, for Linux (x86_64) using readline 5.1
 ```
 $ cd /path/to/cppscrolls__server/src
 $ vi resources/app.cfg
+PORT=8080
+
+API_PREFIX=/api
+SECRET=<server secret key (needed for token system)>
+
+IMAGES_FOLDER_PATH=images/
+SOLUTIONS_FOLDER_PATH=solutions/
+
+EMAIL_SENDER=<email that will send messages to users>
+EMAIL_SENDER_PASSWORD=<email password>
+
+DATABASE_USER=<database user>
+DATABASE_PASSWORD=<database user password>
+SQL_DRIVER=org.mariadb.jdbc.Driver
+SQL_CONNECTION_STRING=jdbc:mariadb://localhost:3306/<database name>?autoReconnect=true
+
+DOCKER_RUN_COMMAND=docker run --rm --volume ?:/workspace/main.cpp solution
 ```
 #### 4. Nginx configuration setting
-```
-$ vi resources/nginx/nginx.conf
-```
 > Replace `<user>` with your linux user.  
 > Replace `/path/to/images/` with `/path/to/cppscrolls__server/build/images/`.
 ```
-$ sudo cp resources/nginx/nginx.conf /etc/nginx/
+$ sudo vim /etc/nginx/nginx.conf
+user <user>;
+
+worker_processes 1;
+
+events {
+  worker_connections  1024;
+}
+
+http {
+  include mime.types;
+
+  default_type application/octet-stream;
+  sendfile on;
+  keepalive_timeout 65;
+
+  server {
+    listen 80;
+    server_name localhost;
+
+    location /images/ {
+      index default.jpg;
+      alias /path/to/images/;
+    }
+
+    location /api/ {
+      proxy_pass http://127.0.0.1:8080;
+    }
+  }
+}
 ```
 #### 5. Creating a docker image
 ```
