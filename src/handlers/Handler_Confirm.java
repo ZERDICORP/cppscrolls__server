@@ -32,7 +32,7 @@ import tools.Token;
 @HTTPRoute
 (
   pattern = "/user/confirm",
-  type = "POST"
+  type = "PUT"
 )
 public class Handler_Confirm extends HTTPHandler
 {

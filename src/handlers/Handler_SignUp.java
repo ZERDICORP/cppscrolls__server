@@ -112,7 +112,8 @@ public class Handler_SignUp extends HTTPHandler
      * sending confirmation email
      */
 
-    MAILClient.send(reqBody.getString(CField.EMAIL), "CPP Scrolls", token);
+    MAILClient.send(reqBody.getString(CField.EMAIL), "CPP Scrolls",
+			"To confirm your account, follow the link below: \n\n" + token);
 
 
 

@@ -95,6 +95,7 @@ public class Middleware_Auth extends HTTPMiddleware
 		if (Arrays.stream(ann.marks()).anyMatch(s -> s.equals(CMark.WITH_PRELOADED_USER)))
 			req.headers().put("Preloaded-User", new JSONObject(user, new String[] {
 				CField.NICKNAME,
+				CField.EMAIL,
 				CField.BIO,
 				CField.IMAGE,
 				CField.POINTS_LOSS,

@@ -65,7 +65,6 @@ public class Handler_GetUserScrolls extends HTTPHandler
 
 
 
-			resBody.put(CField.AUTHOR_ID, user.id);
 			resBody.put(CField.AUTHOR_IMAGE, user.image);
 		}
 

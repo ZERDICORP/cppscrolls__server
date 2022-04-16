@@ -14,15 +14,15 @@ import zer.http.HTTPRequest;
 import zer.http.HTTPResponse;
 import zer.file.FType;
 import zer.file.FTool;
-import zer.mail.MAILClient;
  
-import validators.Validator_DeleteAccount;
+import validators.Validator_Confirm;
 
 import configs.AppConfig;
 
 import constants.CStatus;
 import constants.CField;
 import constants.CMark;
+import constants.Const;
  
 import actions.Action_DeleteUserById;
  
@@ -35,14 +35,14 @@ import tools.Tools;
 
 @HTTPRoute
 (
-  pattern = "/user",
-  type = "DELETE",
+  pattern = "/user/delete/confirm",
+  type = "PUT",
 	marks = {
-    CMark.WITH_AUTH_TOKEN,
+		CMark.WITH_AUTH_TOKEN,
 		CMark.WITH_PRELOADED_USER
-  }
+	}
 )
-public class Handler_DeleteAccount extends HTTPHandler
+public class Handler_ConfirmAccountDeletion extends HTTPHandler
 {
   @Override
   public void handle(HTTPRequest req, HTTPResponse res) throws SQLException
@@ -58,7 +58,7 @@ public class Handler_DeleteAccount extends HTTPHandler
  
  
  
-    CStatus status = Validator_DeleteAccount.validate(bodyAsString);
+    CStatus status = Validator_Confirm.validate(bodyAsString);
     if (status != CStatus.OK)
     {   
       res.body(resBody
@@ -71,32 +71,53 @@ public class Handler_DeleteAccount extends HTTPHandler
 
 
 
-		if
-		(
-			!preloadedUser.getString(CField.PASSWORD_HASH)
-				.equals(Tools.sha256(reqBody.getString(CField.PASSWORD)))
-		)
-		{
-			res.body(resBody
-        .put(CField.STATUS, CStatus.ACCESS_DENIED.ordinal())
+		String payload = Token.access(reqBody.getString(CField.TOKEN), AppConfig.SECRET);
+    if (payload == null)
+    {   
+      res.body(resBody
+        .put(CField.STATUS, CStatus.INVALID_TOKEN.ordinal())
         .toString());
       return;
-		}
+    }   
+ 
+    JSONObject confirmationTokenPayload = new JSONObject(payload);
+ 
+ 
+ 
+    /*\ 
+     * Check if the token has expired.
+     */
+ 
+    if
+		(
+			Tools.daysPassed(confirmationTokenPayload.
+				getString(CField.TOKEN_CREATION_DATE)) > Const.CONFIRMATION_TOKEN_EXPIRATION_DAYS
+		)
+    {
+      res.body(resBody
+        .put(CField.STATUS, CStatus.TOKEN_EXPIRED.ordinal())
+        .toString());
+      return;
+    }
 
 
 
-		JSONObject payload = new JSONObject();
-    payload.put(CField.TOKEN_CREATION_DATE, Tools.currentTimestamp().toString());
-  
-    String token = Token.build(payload.toString(), AppConfig.SECRET);
+		new Action_DeleteUserById(tokenPayload.getString(CField.UID));
 
-    MAILClient.send(preloadedUser.getString(CField.EMAIL), "CPP Scrolls",
-			"To delete your account, follow the link below: \n\n" + token);
+
+
+		/*\
+		 * Removing user image.
+		 */
+
+		if (preloadedUser.has(CField.IMAGE))
+			FTool.delete(AppConfig.IMAGES_FOLDER_PATH + preloadedUser.getString(CField.IMAGE));
 
 
 
 		res.body(resBody
       .put(CField.STATUS, CStatus.OK.ordinal())
+      .put(CField.SIDE, preloadedUser.getInt(CField.SIDE))
       .toString());
   }
 }
