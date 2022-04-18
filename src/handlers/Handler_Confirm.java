@@ -19,6 +19,7 @@ import configs.AppConfig;
 
 import constants.CStatus;
 import constants.CField;
+import constants.Const;
 
 import actions.Action_GetUserById;
 import actions.Action_ConfirmUser;
@@ -26,6 +27,7 @@ import actions.Action_ConfirmUser;
 import models.Model_User;
 
 import tools.Token;
+import tools.Tools;
 
 
 
@@ -60,10 +62,6 @@ public class Handler_Confirm extends HTTPHandler
 
 
 
-    /*\
-     * The variable "payload" stores the user ID.
-     */
-
     String payload = Token.access(
 			reqBody.getString(CField.TOKEN),
 			AppConfig.SECRET
@@ -77,10 +75,30 @@ public class Handler_Confirm extends HTTPHandler
       return;
     }
 
+		JSONObject confirmationTokenPayload = new JSONObject(payload);
+
+
+
+		/*\
+     * Check if the token has expired.
+     */
+
+    if
+		(
+			Tools.daysPassed(confirmationTokenPayload.
+				getString(CField.TOKEN_CREATION_DATE)) > Const.CONFIRMATION_TOKEN_EXPIRATION_DAYS
+		)
+    {
+      res.body(resBody
+        .put(CField.STATUS, CStatus.TOKEN_EXPIRED.ordinal())
+        .toString());
+      return;
+    }
+
 
 
     ArrayList<Model_User> users = new Action_GetUserById(
-			payload
+			confirmationTokenPayload.getString(CField.UID)
 		).result();
 
     if (users.size() == 0 || users.get(0).confirmed == 1)

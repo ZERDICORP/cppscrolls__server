@@ -104,7 +104,11 @@ public class Handler_SignUp extends HTTPHandler
      * creating confirmation token
      */
     
-    String token = Token.build(id, AppConfig.SECRET);
+		JSONObject payload = new JSONObject();
+		payload.put(CField.UID, id);
+    payload.put(CField.TOKEN_CREATION_DATE, Tools.currentTimestamp().toString());
+  
+    String token = Token.build(payload.toString(), AppConfig.SECRET);
 
 
 
